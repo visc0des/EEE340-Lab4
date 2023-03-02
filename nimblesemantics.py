@@ -77,6 +77,24 @@ class InferTypesAndCheckConstraints(NimbleListener):
         self.current_scope = global_scope
         self.type_of = types
 
+    def exitFuncDef(self, ctx:NimbleParser.FuncDefContext):
+        pass
+
+    def exitParameterDef(self, ctx:NimbleParser.ParameterDefContext):
+        pass
+
+    def exitReturn(self, ctx:NimbleParser.ReturnContext):
+        pass
+
+    def exitFuncCall(self, ctx:NimbleParser.FuncCallContext):
+        pass
+
+    def exitFuncCallExpr(self, ctx:NimbleParser.FuncCallExprContext):
+        pass
+
+    def exitFuncCallStmt(self, ctx:NimbleParser.FuncCallStmtContext):
+        pass
+
     # --------------------------------------------------------
     # Program structure
     # --------------------------------------------------------
