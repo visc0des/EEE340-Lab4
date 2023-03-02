@@ -77,22 +77,34 @@ class InferTypesAndCheckConstraints(NimbleListener):
         self.current_scope = global_scope
         self.type_of = types
 
+    def enterFuncDef(self, ctx:NimbleParser.FuncDefContext):
+        self.current_scope = self.current_scope.child_scope_named(f'${ctx.ID().getText()}')
+
     def exitFuncDef(self, ctx:NimbleParser.FuncDefContext):
-        pass
+        self.current_scope = self.current_scope.enclosing_scope
+        # assign function type in the global scope
 
     def exitParameterDef(self, ctx:NimbleParser.ParameterDefContext):
+        # Create parameter symbol in the current scope (function scope)
+        # Should be the same as the var dec
         pass
 
     def exitReturn(self, ctx:NimbleParser.ReturnContext):
+        # must match the function definition's type Will create an error in the error log
+        # in the main only a bare return can be used
         pass
 
     def exitFuncCall(self, ctx:NimbleParser.FuncCallContext):
+        # ensure that the function exists within the global scope otherwise it's an error
+        # ensure that argument types match the function's parameter types otherwise it's an error
         pass
 
     def exitFuncCallExpr(self, ctx:NimbleParser.FuncCallExprContext):
+        # Need to assign it the type returned by the function
         pass
 
     def exitFuncCallStmt(self, ctx:NimbleParser.FuncCallStmtContext):
+        # Don't need to do anything here
         pass
 
     # --------------------------------------------------------
