@@ -87,7 +87,16 @@ class InferTypesAndCheckConstraints(NimbleListener):
     def exitParameterDef(self, ctx:NimbleParser.ParameterDefContext):
         # Create parameter symbol in the current scope (function scope)
         # Should be the same as the var dec
-        pass
+        type_dict = {'Int': PrimitiveType.Int, 'Bool': PrimitiveType.Bool, 'String': PrimitiveType.String}
+
+        # Extracting variable type declared, its primitive type,
+        # and the ID declared
+        var_text = ctx.TYPE().getText()
+        var_primtype = type_dict[var_text]
+        this_ID = ctx.ID().getText()
+
+        # create the symbol with the inuptted typeset the variable type accordingly
+        self.current_scope.define(this_ID, var_primtype, False)
 
     def exitReturn(self, ctx:NimbleParser.ReturnContext):
         # must match the function definition's type Will create an error in the error log
