@@ -31,6 +31,12 @@ In the second phase, type inference is performed and all other semantic constrai
 checked.
 
 
+NOTES:
+    - Turns out there's an easy way to access the PrimitiveTypes values with a TYPE's text:
+        PrimitiveType['Int'] => PrimitiveType.Int. Thanks G-dawg.
+
+
+
 Group members: OCdt Liethan Velasco and OCdt Aaron Brown
 Version:    March 2nd, 2023
 
@@ -40,7 +46,7 @@ Version:    March 2nd, 2023
 
 from errorlog import ErrorLog, Category
 from nimble import NimbleListener, NimbleParser
-from symboltable import PrimitiveType, Scope
+from symboltable import PrimitiveType, FunctionType, Scope
 
 # --- Defining Classes that contain exit and enter functions ---
 
@@ -57,6 +63,30 @@ class DefineScopesAndSymbols(NimbleListener):
 
     def exitMain(self, ctx: NimbleParser.MainContext):
         self.current_scope = self.current_scope.enclosing_scope
+
+    def enterFuncDef(self, ctx:NimbleParser.FuncDefContext):
+
+        # ! Stay in global scope, just create the function "symbol" and do nothing else
+
+        # Get function name
+        func_name = ctx.ID().getText();
+
+        # EXTRACT types of parameters from each paramDef token
+        # (Have to do this since we haven't created parameter symbols in function scope yet)
+        param_types = [PrimitiveType[this_param.TYPE().getText()] for this_param in ctx.parameterDef()];
+
+        # Get return type of function (default to void).
+        ret_type = PrimitiveType.Void;
+        if ctx.TYPE() is not None:
+            ret_type = PrimitiveType[ctx.TYPE().getText()];
+
+        # Create function type symbol in global scope.
+        this_funcDef = FunctionType(param_types, ret_type);
+        self.current_scope.define(func_name, this_funcDef)
+
+        # Create the function's scope in the global scope
+        self.current_scope.create_child_scope(ctx.ID().getText(), ret_type)
+
 
 
 class InferTypesAndCheckConstraints(NimbleListener):
@@ -78,11 +108,20 @@ class InferTypesAndCheckConstraints(NimbleListener):
         self.type_of = types
 
     def enterFuncDef(self, ctx:NimbleParser.FuncDefContext):
-        self.current_scope = self.current_scope.child_scope_named(f'${ctx.ID().getText()}')
+
+        # Switch scope to that of function
+        self.current_scope = self.current_scope.child_scope_named(ctx.ID().getText())
+
+
 
     def exitFuncDef(self, ctx:NimbleParser.FuncDefContext):
+
+        # Return to global scope
         self.current_scope = self.current_scope.enclosing_scope
-        # assign function type in the global scope
+
+
+
+
 
     def exitParameterDef(self, ctx:NimbleParser.ParameterDefContext):
         # Create parameter symbol in the current scope (function scope)
