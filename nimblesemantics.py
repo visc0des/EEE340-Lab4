@@ -95,6 +95,13 @@ class InferTypesAndCheckConstraints(NimbleListener):
         var_primtype = type_dict[var_text]
         this_ID = ctx.ID().getText()
 
+        # First thing to check is if we're declaring a duplicated variable name. Set ERROR if so and stop function.
+        if self.current_scope.resolve(this_ID) is not None:
+            self.current_scope.define(this_ID, PrimitiveType.ERROR, False)
+            self.error_log.add(ctx, Category.DUPLICATE_NAME, f"Previously declared variable already has name"
+                                                             f"[{this_ID}]. No duplicates are allowed.")
+            return
+
         # create the symbol with the inuptted typeset the variable type accordingly
         self.current_scope.define(this_ID, var_primtype, False)
 
