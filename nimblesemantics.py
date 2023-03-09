@@ -112,13 +112,14 @@ class InferTypesAndCheckConstraints(NimbleListener):
         # Switch scope to that of function
         self.current_scope = self.current_scope.child_scope_named(ctx.ID().getText())
 
-
+        # So everything else gets handled at the lower levels.
 
     def exitFuncDef(self, ctx:NimbleParser.FuncDefContext):
 
         # Return to global scope
         self.current_scope = self.current_scope.enclosing_scope
 
+    # Everything inside gets handled at lower levels.
 
 
 
