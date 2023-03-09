@@ -125,6 +125,7 @@ class InferTypesAndCheckConstraints(NimbleListener):
 
     def subVarDec(self, ctx):
         # Creating mini-lookup dictionary for verification
+        # TODO this dic isn't needed as primtiveType['int'] will do the thing for us
         type_dict = {'Int': PrimitiveType.Int, 'Bool': PrimitiveType.Bool, 'String': PrimitiveType.String}
 
         # Extracting variable type declared, its primitive type,
@@ -145,7 +146,6 @@ class InferTypesAndCheckConstraints(NimbleListener):
         return var_text, var_primtype, this_ID, error
 
     def exitParameterDef(self, ctx:NimbleParser.ParameterDefContext):
-        # TODO make methods to clean up exitVarDec
         # Create parameter symbol in the current scope (function scope)
         # Should be the same as the var dec
         var_text, var_primtype, this_ID, error = self.subVarDec(ctx)
