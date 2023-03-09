@@ -123,10 +123,36 @@ class InferTypesAndCheckConstraints(NimbleListener):
 
 
 
+    def subVarDec(self, ctx):
+        # Creating mini-lookup dictionary for verification
+        type_dict = {'Int': PrimitiveType.Int, 'Bool': PrimitiveType.Bool, 'String': PrimitiveType.String}
+
+        # Extracting variable type declared, its primitive type,
+        # and the ID declared
+        var_text = ctx.TYPE().getText()
+        var_primtype = type_dict[var_text]
+        this_ID = ctx.ID().getText()
+
+        # First thing to check is if we're declaring a duplicated variable name. Set ERROR if so and stop function.
+        if self.current_scope.resolve(this_ID) is not None:
+            self.current_scope.define(this_ID, PrimitiveType.ERROR, False)
+            self.error_log.add(ctx, Category.DUPLICATE_NAME, f"Previously declared variable already has name"
+                                                             f"[{this_ID}]. No duplicates are allowed.")
+            error = True
+        else:
+            error = False
+
+        return var_text, var_primtype, this_ID, error
+
     def exitParameterDef(self, ctx:NimbleParser.ParameterDefContext):
+        # TODO make methods to clean up exitVarDec
         # Create parameter symbol in the current scope (function scope)
         # Should be the same as the var dec
-        pass
+        var_text, var_primtype, this_ID, error = self.subVarDec(ctx)
+
+        # create the symbol with the inuptted typeset the variable type accordingly
+        if not error:
+            self.current_scope.define(this_ID, var_primtype, False)
 
     def exitReturn(self, ctx:NimbleParser.ReturnContext):
         # must match the function definition's type Will create an error in the error log
@@ -180,21 +206,7 @@ class InferTypesAndCheckConstraints(NimbleListener):
     # --------------------------------------------------------
 
     def exitVarDec(self, ctx: NimbleParser.VarDecContext):
-        # Creating mini-lookup dictionary for verification
-        type_dict = {'Int': PrimitiveType.Int, 'Bool': PrimitiveType.Bool, 'String': PrimitiveType.String}
-
-        # Extracting variable type declared, its primitive type,
-        # and the ID declared
-        var_text = ctx.TYPE().getText()
-        var_primtype = type_dict[var_text]
-        this_ID = ctx.ID().getText()
-
-        # First thing to check is if we're declaring a duplicated variable name. Set ERROR if so and stop function.
-        if self.current_scope.resolve(this_ID) is not None:
-            self.current_scope.define(this_ID, PrimitiveType.ERROR, False)
-            self.error_log.add(ctx, Category.DUPLICATE_NAME, f"Previously declared variable already has name"
-                                                             f"[{this_ID}]. No duplicates are allowed.")
-            return
+        var_text, var_primtype, this_ID, error = self.subVarDec(ctx)
 
         # If no duplicate name, and if there was an assignment,
         # check if does not violate type constraint
@@ -213,7 +225,8 @@ class InferTypesAndCheckConstraints(NimbleListener):
                 return
 
         # If all input conditions met, create the symbol with the inuptted typeset the variable type accordingly
-        self.current_scope.define(this_ID, var_primtype, False)
+        if not error:
+            self.current_scope.define(this_ID, var_primtype, False)
 
     # --------------------------------------------------------
     # Statements
