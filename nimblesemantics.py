@@ -118,8 +118,11 @@ class InferTypesAndCheckConstraints(NimbleListener):
     def exitReturn(self, ctx:NimbleParser.ReturnContext):
         # must match the function definition's type Will create an error in the error log
         # in the main only a bare return can be used
-        pass
 
+        # checking if in main scope
+        if self.current_scope.name == "$main":
+            if ctx.expr() is not None:
+                self.error_log.add(ctx, Category.ASSIGN_TO_WRONG_TYPE, "Can't return anything from the main")
     def exitFuncCall(self, ctx:NimbleParser.FuncCallContext):
         # ensure that the function exists within the global scope otherwise it's an error
         # ensure that argument types match the function's parameter types otherwise it's an error
