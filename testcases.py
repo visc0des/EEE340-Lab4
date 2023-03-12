@@ -286,3 +286,44 @@ class TypeTests(unittest.TestCase):
         """ Wrapper function of if test cases. """
         self.while_if_test(tc.VALID_IF, False)
         self.while_if_test(tc.INVALID_IF, True)
+
+
+    def test_funcDef(self):
+        """ Check if function definitions have their correct types. """
+
+        # Testing valid var dec first
+        for statement, func_name_list, expected_type_list in tc.VALID_SIMPLE_FUNCDEF:
+
+            # Conduct analysis
+            error_log, global_scope, indexed_types = do_semantic_analysis(statement, "script", False);
+
+            # Loop through function names, resolve them and check if have correct expected type.
+            # Ensure no errors were generated
+            for func_name, expected_type in zip(func_name_list, expected_type_list):
+
+                func_symbol = global_scope.resolve(func_name);
+                self.assertEqual(func_symbol.type, expected_type);
+                self.assertEqual(0, error_log.total_entries())
+
+    def test_funcDef_param(self):
+
+        for statement, dict_list in tc.VALID_TEST_PARAM:
+            # Conduct analysis
+            error_log, global_scope, indexed_types = do_semantic_analysis(statement, "script", False);
+
+            # Loop through dict_list elements, check if each function's parameters are what are expected
+            for dict_element in dict_list:
+
+                # Unpack element
+                func_name = dict_element[0];
+                param_dict = dict_element[1];
+
+                # Get function scope, and retrieve parameters
+                func_scope = global_scope.child_scope_named(func_name);
+                func_params = func_scope.parameters();
+
+                # Check parameter types if correct
+                for this_param in func_params:
+                    self.assertEqual(this_param.type, param_dict[this_param.name]);
+
+

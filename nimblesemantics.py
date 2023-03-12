@@ -122,8 +122,6 @@ class InferTypesAndCheckConstraints(NimbleListener):
     # Everything inside gets handled at lower levels.
 
 
-
-
     def subVarDec(self, ctx):
         # Creating mini-lookup dictionary for verification
         # TODO this dic isn't needed as primtiveType['int'] will do the thing for us
@@ -153,7 +151,8 @@ class InferTypesAndCheckConstraints(NimbleListener):
 
         # create the symbol with the inuptted typeset the variable type accordingly
         if not error:
-            self.current_scope.define(this_ID, var_primtype, False)
+            self.current_scope.define(this_ID, var_primtype, True) # <-- Changed from False to True
+
 
     def exitReturn(self, ctx:NimbleParser.ReturnContext):
         # must match the function definition's type Will create an error in the error log
