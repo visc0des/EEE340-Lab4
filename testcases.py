@@ -308,6 +308,7 @@ class TypeTests(unittest.TestCase):
     def test_funcDef_param(self):
 
         for statement, dict_list in tc.VALID_TEST_PARAM:
+
             # Conduct analysis
             error_log, global_scope, indexed_types = do_semantic_analysis(statement, "script", False);
 
@@ -325,5 +326,27 @@ class TypeTests(unittest.TestCase):
                 # Check parameter types if correct
                 for this_param in func_params:
                     self.assertEqual(this_param.type, param_dict[this_param.name]);
+
+
+
+    def test_funcCall(self):
+
+        # Testing valid calls
+        for statement in tc.VALID_FUNCCALL:
+
+            # Conduct analysis
+            #error_log, global_scope, indexed_types = do_semantic_analysis(statement, "script", False);
+            pass;
+
+        # Testing invalid calls todo - add more to this one
+        for statement in tc.INVALID_FUNCCALL:
+
+            # Conduct analysis
+            error_log, global_scope, indexed_types = do_semantic_analysis(statement, "script", False);
+
+            print_debug_info(statement, indexed_types, error_log)
+
+
+
 
 

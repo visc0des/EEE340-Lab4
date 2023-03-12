@@ -280,3 +280,16 @@ VALID_TEST_PARAM = [
 
     # todo - Let's test functions with variable declarations inside it. Also with some shadowing
 ]
+
+VALID_FUNCCALL = [
+
+    # 'func myFunc(var1: Int, var2 : String) {}\nmyFunc(10, "balls")'
+]
+
+INVALID_FUNCCALL = [
+
+    'func myFunc(var1: Int, var2 : Bool) {}\nmyFunc("cat", "and mouse")',
+    'func myFunc(var1: Int, var2 : Bool) {}\nNOTmyFunc("cat", "and mouse")',
+    'func myFunc(var1: Int, var2 : Bool) {}\nMissingArgFunc("cat")',
+
+]

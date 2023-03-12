@@ -159,10 +159,51 @@ class InferTypesAndCheckConstraints(NimbleListener):
         # in the main only a bare return can be used
         pass
 
+
     def exitFuncCall(self, ctx:NimbleParser.FuncCallContext):
         # ensure that the function exists within the global scope otherwise it's an error
         # ensure that argument types match the function's parameter types otherwise it's an error
-        pass
+
+        # Extracting tokens
+        func_ID = ctx.ID().getText();
+        func_args = [this_expr for this_expr in ctx.expr()];
+
+        # First, check if a function with func_ID name exists. If none exists, set error accordingly and stop function
+        func_symbol = self.current_scope.resolve(func_ID);
+        if func_symbol is None:
+            self.type_of[ctx] = PrimitiveType.ERROR;
+            self.error_log.add(ctx, Category.INVALID_CALL, f"ERROR: A function with name {func_ID} does not exist. "
+                                                           f"Check spelling or number of inputted arguments.");
+            return;
+
+        # If it exists, check argument types if matching with parameter types
+        error_found = False;
+        error_args = [];        # honestly I can't think of any better solution to this rn
+        error_params = [];
+        for this_arg, this_param_type in zip(func_args, func_symbol.type.parameter_types):
+
+            # Check if a given argument does not match types with its respective parameter.
+            # Find all mismatches and update error log accordingly.
+            if self.type_of[this_arg] != this_param_type:
+                error_args.append(f"{this_arg.getText()}:{self.type_of[this_arg]}");
+                error_params.append(f"{this_param_type}");
+                error_found = True;
+
+
+        # If we found an error, set funcCall expression's type to ERROR.
+        # Otherwise, set to return type of function
+        if error_found:
+            error_msg = f"ERROR: Argument(s) [{', '.join(error_args)}] do not " \
+                        f"match respective expected function parameters types [{', '.join(error_params)}]."
+            self.error_log.add(ctx, Category.INVALID_CALL, error_msg)
+            self.type_of[ctx] = PrimitiveType.ERROR;
+        else:
+            self.type_of[ctx] = func_symbol.type.return_type;
+
+
+
+
+
 
     def exitFuncCallExpr(self, ctx:NimbleParser.FuncCallExprContext):
         # Need to assign it the type returned by the function
