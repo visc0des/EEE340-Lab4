@@ -293,3 +293,11 @@ INVALID_FUNCCALL = [
     'func myFunc(var1: Int, var2 : Bool) {}\nMissingArgFunc("cat")',
 
 ]
+
+VALID_RETURN = [
+
+]
+
+INVALID_RETURN = [
+
+]
