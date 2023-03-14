@@ -31,6 +31,12 @@ In the second phase, type inference is performed and all other semantic constrai
 checked.
 
 
+NOTES:
+    - Turns out there's an easy way to access the PrimitiveTypes values with a TYPE's text:
+        PrimitiveType['Int'] => PrimitiveType.Int. Thanks G-dawg.
+
+
+
 Group members: OCdt Liethan Velasco and OCdt Aaron Brown
 Version:    March 2nd, 2023
 
@@ -40,7 +46,7 @@ Version:    March 2nd, 2023
 
 from errorlog import ErrorLog, Category
 from nimble import NimbleListener, NimbleParser
-from symboltable import PrimitiveType, Scope
+from symboltable import PrimitiveType, FunctionType, Scope
 
 # --- Defining Classes that contain exit and enter functions ---
 
@@ -57,6 +63,30 @@ class DefineScopesAndSymbols(NimbleListener):
 
     def exitMain(self, ctx: NimbleParser.MainContext):
         self.current_scope = self.current_scope.enclosing_scope
+
+    def enterFuncDef(self, ctx:NimbleParser.FuncDefContext):
+
+        # ! Stay in global scope, just create the function "symbol" and do nothing else
+
+        # Get function name
+        func_name = ctx.ID().getText();
+
+        # EXTRACT types of parameters from each paramDef token
+        # (Have to do this since we haven't created parameter symbols in function scope yet)
+        param_types = [PrimitiveType[this_param.TYPE().getText()] for this_param in ctx.parameterDef()];
+
+        # Get return type of function (default to void).
+        ret_type = PrimitiveType.Void;
+        if ctx.TYPE() is not None:
+            ret_type = PrimitiveType[ctx.TYPE().getText()];
+
+        # Create function type symbol in global scope.
+        this_funcDef = FunctionType(param_types, ret_type);
+        self.current_scope.define(func_name, this_funcDef)
+
+        # Create the function's scope in the global scope
+        self.current_scope.create_child_scope(ctx.ID().getText(), ret_type)
+
 
 
 class InferTypesAndCheckConstraints(NimbleListener):
@@ -78,14 +108,23 @@ class InferTypesAndCheckConstraints(NimbleListener):
         self.type_of = types
 
     def enterFuncDef(self, ctx:NimbleParser.FuncDefContext):
-        self.current_scope = self.current_scope.child_scope_named(f'${ctx.ID().getText()}')
+
+        # Switch scope to that of function
+        self.current_scope = self.current_scope.child_scope_named(ctx.ID().getText())
+
+        # So everything else gets handled at the lower levels.
 
     def exitFuncDef(self, ctx:NimbleParser.FuncDefContext):
+
+        # Return to global scope
         self.current_scope = self.current_scope.enclosing_scope
-        # assign function type in the global scope
+
+    # Everything inside gets handled at lower levels.
+
 
     def subVarDec(self, ctx):
         # Creating mini-lookup dictionary for verification
+        # TODO this dic isn't needed as primtiveType['int'] will do the thing for us
         type_dict = {'Int': PrimitiveType.Int, 'Bool': PrimitiveType.Bool, 'String': PrimitiveType.String}
 
         # Extracting variable type declared, its primitive type,
@@ -106,14 +145,14 @@ class InferTypesAndCheckConstraints(NimbleListener):
         return var_text, var_primtype, this_ID, error
 
     def exitParameterDef(self, ctx:NimbleParser.ParameterDefContext):
-        # TODO make methods to clean up exitVarDec
         # Create parameter symbol in the current scope (function scope)
         # Should be the same as the var dec
         var_text, var_primtype, this_ID, error = self.subVarDec(ctx)
 
         # create the symbol with the inuptted typeset the variable type accordingly
         if not error:
-            self.current_scope.define(this_ID, var_primtype, False)
+            self.current_scope.define(this_ID, var_primtype, True) # <-- Changed from False to True
+
 
     def exitReturn(self, ctx:NimbleParser.ReturnContext):
         # must match the function definition's type Will create an error in the error log
@@ -123,10 +162,51 @@ class InferTypesAndCheckConstraints(NimbleListener):
         if self.current_scope.name == "$main":
             if ctx.expr() is not None:
                 self.error_log.add(ctx, Category.ASSIGN_TO_WRONG_TYPE, "Can't return anything from the main")
+
     def exitFuncCall(self, ctx:NimbleParser.FuncCallContext):
         # ensure that the function exists within the global scope otherwise it's an error
         # ensure that argument types match the function's parameter types otherwise it's an error
-        pass
+
+        # Extracting tokens
+        func_ID = ctx.ID().getText();
+        func_args = [this_expr for this_expr in ctx.expr()];
+
+        # First, check if a function with func_ID name exists. If none exists, set error accordingly and stop function
+        func_symbol = self.current_scope.resolve(func_ID);
+        if func_symbol is None:
+            self.type_of[ctx] = PrimitiveType.ERROR;
+            self.error_log.add(ctx, Category.INVALID_CALL, f"ERROR: A function with name {func_ID} does not exist. "
+                                                           f"Check spelling or number of inputted arguments.");
+            return;
+
+        # If it exists, check argument types if matching with parameter types
+        error_found = False;
+        error_args = [];        # honestly I can't think of any better solution to this rn
+        error_params = [];
+        for this_arg, this_param_type in zip(func_args, func_symbol.type.parameter_types):
+
+            # Check if a given argument does not match types with its respective parameter.
+            # Find all mismatches and update error log accordingly.
+            if self.type_of[this_arg] != this_param_type:
+                error_args.append(f"{this_arg.getText()}:{self.type_of[this_arg]}");
+                error_params.append(f"{this_param_type}");
+                error_found = True;
+
+
+        # If we found an error, set funcCall expression's type to ERROR.
+        # Otherwise, set to return type of function
+        if error_found:
+            error_msg = f"ERROR: Argument(s) [{', '.join(error_args)}] do not " \
+                        f"match respective expected function parameters types [{', '.join(error_params)}]."
+            self.error_log.add(ctx, Category.INVALID_CALL, error_msg)
+            self.type_of[ctx] = PrimitiveType.ERROR;
+        else:
+            self.type_of[ctx] = func_symbol.type.return_type;
+
+
+
+
+
 
     def exitFuncCallExpr(self, ctx:NimbleParser.FuncCallExprContext):
         # Need to assign it the type returned by the function

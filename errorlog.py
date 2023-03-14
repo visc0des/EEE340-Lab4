@@ -4,7 +4,7 @@ discovered in analysis of a Nimble program.
 
 Author: Greg Phillips
 
-Version: 2022-02-04
+Version: 2023-03-10
 """
 
 from collections import defaultdict
@@ -18,13 +18,23 @@ class Category(Enum):
     """
     Categories of semantic errors for Nimble programs.
     """
+    # ----- Lab 3 -----
     ASSIGN_TO_WRONG_TYPE = auto()  # left hand side of assignment incompatible with right
     UNDEFINED_NAME = auto()  # variable name not defined
     DUPLICATE_NAME = auto()  # variable name declared multiple times
     INVALID_NEGATION = auto()  # negation ! or - applied to incompatible expression
     INVALID_BINARY_OP = auto()  # binary operator applied to incompatible left and right expressions
     CONDITION_NOT_BOOL = auto()  # condition on if or while statement not a Bool
-    UNPRINTABLE_EXPRESSION = auto() # expression in print is not a valid type
+    UNPRINTABLE_EXPRESSION = auto()  # expression in print is not a valid type
+
+    # ----- Lab 4 -----
+    INVALID_CALL = auto()  # call of a function or method with invalid parameters, or call of non-function
+    INVALID_RETURN = auto()  # returned type doesn't match declared return type
+    FUNCTION_USED_AS_VARIABLE = auto()  # function being used as variable, i.e., without being called
+
+    # ----- Lab 4 bonus -----
+    UNREACHABLE_STATEMENT = auto()  # statement is unreachable
+    MISSING_RETURN = auto() # function that requires a returned value ends without one
 
     def __str__(self):
         return self.name
@@ -60,13 +70,8 @@ class ErrorLog:
         self.__entries = defaultdict(dict)
 
     def add(self, ctx: ParserRuleContext, category: Category, message: str):
-        """
-        Creates a new log Entry using the provided information and inserts it into the log.
-        The message should be a well formatted string that clearly describes the error.
-        """
         entry = Entry(ctx, category, message)
         self.__entries[entry.line()][ctx.getText()] = entry
-
 
     def includes_exactly(self, category: Category, line: int, source: str) -> bool:
         """
@@ -75,7 +80,6 @@ class ErrorLog:
         be multiple errors on a line and a specific error is of interest.
         """
         return self.__entries[line][source].category == category
-
 
     def includes_on_line(self, category: Category, line: int):
         """

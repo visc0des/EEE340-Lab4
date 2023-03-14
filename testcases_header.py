@@ -10,7 +10,7 @@
 
 # Import Section
 from errorlog import Category
-from symboltable import PrimitiveType
+from symboltable import PrimitiveType, FunctionType, Symbol
 
 
 
@@ -250,5 +250,46 @@ INVALID_IF = [
     'var X : Int = 30\nif X - 30 {} else {}',
     'if !"Totally a bool" {}',
     'if (true) { if (123) { } }',
+
+]
+
+
+VALID_SIMPLE_FUNCDEF = [
+
+    # Will be using lists in test cases to check multiple functions in one script
+
+    ['func myFunc(var1 : Int, var2 : String) -> Bool {}\nfunc secondFunc() -> Int {}\nfunc voidFunc() {}',
+     ['myFunc', 'secondFunc', 'voidFunc'],
+     [FunctionType([PrimitiveType.Int, PrimitiveType.String], PrimitiveType.Bool),
+      FunctionType([], PrimitiveType.Int), FunctionType([], PrimitiveType.Void)]]
+
+]
+
+# "I don't think there's a way for us to test invalid func definitions."
+
+VALID_TEST_PARAM = [
+
+    # Can we test functions with no parameters
+    ['func myFunc(var1 : Int, var2 : String) -> Bool {}\nfunc secondFunc(var3 : Bool) -> Int {}',
+     [['myFunc', {'var1' : PrimitiveType.Int, 'var2' : PrimitiveType.String}], ['secondFunc', {'var3' : PrimitiveType.Bool}]]]
+
+    # ^ Made multidimentioanl array for testing here, where we have the name of a function
+    # paired with a dictionary of all its parameters
+
+
+
+    # todo - Let's test functions with variable declarations inside it. Also with some shadowing
+]
+
+VALID_FUNCCALL = [
+
+    # 'func myFunc(var1: Int, var2 : String) {}\nmyFunc(10, "balls")'
+]
+
+INVALID_FUNCCALL = [
+
+    'func myFunc(var1: Int, var2 : Bool) {}\nmyFunc("cat", "and mouse")',
+    'func myFunc(var1: Int, var2 : Bool) {}\nNOTmyFunc("cat", "and mouse")',
+    'func myFunc(var1: Int, var2 : Bool) {}\nMissingArgFunc("cat")',
 
 ]
