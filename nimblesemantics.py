@@ -224,7 +224,7 @@ class InferTypesAndCheckConstraints(NimbleListener):
 
     def exitFuncCallExpr(self, ctx:NimbleParser.FuncCallExprContext):
         # Need to assign it the type returned by the function
-        pass
+        self.type_of[ctx] = self.type_of[ctx.funcCall()]
 
     def exitFuncCallStmt(self, ctx:NimbleParser.FuncCallStmtContext):
         # Don't need to do anything here
