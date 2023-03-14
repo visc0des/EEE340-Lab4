@@ -166,7 +166,10 @@ class InferTypesAndCheckConstraints(NimbleListener):
         # checking if type matches function
         return_type = self.current_scope.return_type
         if return_type is not PrimitiveType.Void:
-            if return_type != self.type_of[ctx.expr()]:
+            if ctx.expr() is None:
+                self.error_log.add(ctx, Category.INVALID_RETURN,
+                                   "Type returned dose not match function declaration type")
+            elif return_type != self.type_of[ctx.expr()]:
                 self.error_log.add(ctx, Category.INVALID_RETURN,
                                    "Type returned dose not match function declaration type")
         else:
