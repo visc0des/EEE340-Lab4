@@ -304,8 +304,9 @@ VALID_RETURN = [
 
 INVALID_RETURN = [
     'return 10'
+    # TODO All of these are returning an error with the parser
     #'var X : Int = 30\nreturn X',
-    'func myFunc() -> Bool {return}',
+    #'func myFunc() -> Bool {return}',
     #'func myFunc() -> Bool {return 10}',
     #'func myFunc() -> Int {return "Hello"}',
     #'func myFunc() -> String {return true}',

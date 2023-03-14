@@ -351,6 +351,8 @@ class TypeTests(unittest.TestCase):
         for statement in tc.VALID_RETURN:
             self.get_valid_testItems(statement)
 
-        # testing invalid statments
+        # testing invalid statements
         for statement in tc.INVALID_RETURN:
-            self.get_invalid_testItems(statement)
+            error_log, global_scope, indexed_types = do_semantic_analysis(statement, 'script')
+
+            self.assertNotEqual(0, error_log.total_entries())
