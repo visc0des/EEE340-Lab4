@@ -342,7 +342,7 @@ class TypeTests(unittest.TestCase):
         for statement in tc.INVALID_FUNCCALL:
 
             # Conduct analysis
-            error_log, global_scope, indexed_types = do_semantic_analysis(statement, "script", False);
+            error_log, global_scope, indexed_types = self.get_invalid_testItems(statement)
 
             #print_debug_info(statement, indexed_types, error_log)
 
