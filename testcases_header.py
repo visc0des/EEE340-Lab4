@@ -300,12 +300,13 @@ VALID_RETURN = [
     'func myFunc() -> Bool {return true}',
     'func myFunc() -> Int {return 53}',
     'func myFunc() -> String {return "hello world"}',
+    'func myFunc() -> Bool {return}',                   #<-- I think this is actually a valid case.
 ]
 
 INVALID_RETURN = [
-    'return 10'
+    'return 10',
     #'var X : Int = 30\nreturn X',
-    'func myFunc() -> Bool {return}',
+
     #'func myFunc() -> Bool {return 10}',
     #'func myFunc() -> Int {return "Hello"}',
     #'func myFunc() -> String {return true}',

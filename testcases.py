@@ -349,8 +349,12 @@ class TypeTests(unittest.TestCase):
     def test_return(self):
         # testing valid statements
         for statement in tc.VALID_RETURN:
-            self.get_valid_testItems(statement)
+            error_log, global_scope, indexed_types = self.get_valid_testItems(statement)
+
+            print_debug_info(statement, indexed_types, error_log);
 
         # testing invalid statments
         for statement in tc.INVALID_RETURN:
-            self.get_invalid_testItems(statement)
+            error_log, global_scope, indexed_types = self.get_invalid_testItems(statement)
+
+            print_debug_info(statement, indexed_types, error_log);
