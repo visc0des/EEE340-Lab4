@@ -170,16 +170,12 @@ class InferTypesAndCheckConstraints(NimbleListener):
         return_type = self.current_scope.return_type
         if return_type is not PrimitiveType.Void:
 
-            # Check if expr exists. Handle accordingly
-            if expr is not None:
-                if return_type != self.type_of[expr]:
-                    self.error_log.add(ctx, Category.INVALID_RETURN,
-                                       f"ERROR: Type returned ({self.type_of[expr]}) does not match function "
-                                       f"declaration return type ({return_type}).")
-
-            # If expr doesn't exist, nothing to do
-            else:
-                return;
+            if ctx.expr() is None:
+                self.error_log.add(ctx, Category.INVALID_RETURN,
+                                   "Type returned dose not match function declaration type")
+            elif return_type != self.type_of[ctx.expr()]:
+                self.error_log.add(ctx, Category.INVALID_RETURN,
+                                   "Type returned dose not match function declaration type")
 
         else:
             if expr is not None:
@@ -233,7 +229,7 @@ class InferTypesAndCheckConstraints(NimbleListener):
 
     def exitFuncCallExpr(self, ctx:NimbleParser.FuncCallExprContext):
         # Need to assign it the type returned by the function
-        pass
+        self.type_of[ctx] = self.type_of[ctx.funcCall()]
 
     def exitFuncCallStmt(self, ctx:NimbleParser.FuncCallStmtContext):
         # Don't need to do anything here

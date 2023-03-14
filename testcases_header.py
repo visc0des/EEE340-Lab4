@@ -300,7 +300,6 @@ VALID_RETURN = [
     'func myFunc() -> Bool {return true}',
     'func myFunc() -> Int {return 53}',
     'func myFunc() -> String {return "hello world"}',
-    'func myFunc() -> Bool {return}',                   #<-- I think this is actually a valid case.
 ]
 
 INVALID_RETURN = [
@@ -310,4 +309,29 @@ INVALID_RETURN = [
     #'func myFunc() -> Bool {return 10}',
     #'func myFunc() -> Int {return "Hello"}',
     #'func myFunc() -> String {return true}',
+
+    'var X : Int = 30\nreturn X',
+    'func myFunc() -> Bool {return}',
+    'func myFunc() -> Bool {return 10}',
+    'func myFunc() -> Int {return "Hello"}',
+    'func myFunc() -> String {return true}',
+]
+
+VALID_FUNCCALLEXPR = [
+    # (statment, type, expr)
+    ('func myFunc() -> Bool {return true}\n var x : Bool = myFunc()', PrimitiveType.Bool, 'myFunc()'),
+    ('func myFunc() -> Int {return 10}\nvar test : Int = myFunc()', PrimitiveType.Int, 'myFunc()'),
+    ('func myFunc() -> String {return "Hello World"}\nvar test : String = myFunc()', PrimitiveType.String, 'myFunc()'),
+    ('func myFunc() -> Int {return 10}\nvar test : Int = 10 + myFunc()', PrimitiveType.Int, 'myFunc()'),
+    ('func myFunc(num : Int) -> Int {return 10 + num}\nvar test : Int = myFunc(10)', PrimitiveType.Int, 'myFunc(10)'),
+    ('func myFunc(num : Int) -> String {return "Hello"}\nvar test : String = myFunc(10)', PrimitiveType.String,
+     'myFunc(10)'),
+]
+
+INVALID_FUNCCALLEXPR = [
+    ('func myFunc() -> Bool {return true}\nvar x : String = myFunc()', PrimitiveType.Bool, 'myFunc()'),
+    ('func myFunc() -> String {return "Hello"}\nvar x : Int = myFunc() + 10', PrimitiveType.String, 'myFunc()'),
+    ('func myFunc(num : Int) {}\nvar x : Int = myFunc(10)', PrimitiveType.Void, 'myFunc()'),
+    ('func myFunc(num : Int) -> Bool {return true}\nvar x : Int = myFunc()', PrimitiveType.Bool, 'myFunc()')
+
 ]
