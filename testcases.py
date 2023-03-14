@@ -307,6 +307,7 @@ class TypeTests(unittest.TestCase):
 
     def test_funcDef_param(self):
 
+        # For valid statements
         for statement, dict_list in tc.VALID_TEST_PARAM:
 
             # Conduct analysis
@@ -327,6 +328,19 @@ class TypeTests(unittest.TestCase):
                 for this_param in func_params:
                     self.assertEqual(this_param.type, param_dict[this_param.name]);
 
+        # For invalid cases
+        for statement, expected_error in tc.INVALID_TEST_PARAM:
+
+            # Conduct analysis
+            error_log, global_scope, indexed_types = do_semantic_analysis(statement, "script", False);
+
+            # Check if expected error actually occurred.
+            found = False
+            for i in range(1, len(statement.splitlines()) + 1):
+                if error_log.includes_on_line(expected_error, i):
+                    found = True
+            self.assertTrue(found)
+            self.assertNotEqual(0, error_log.total_entries())
 
 
     def test_funcCall(self):
@@ -335,8 +349,13 @@ class TypeTests(unittest.TestCase):
         for statement in tc.VALID_FUNCCALL:
 
             # Conduct analysis
-            #error_log, global_scope, indexed_types = do_semantic_analysis(statement, "script", False);
-            pass;
+            error_log, global_scope, indexed_types = do_semantic_analysis(statement, "script", False);
+
+            # Just ensure no errors have occurred.
+            self.assertEqual(0, error_log.total_entries());
+
+            print_debug_info(statement, indexed_types, error_log);
+
 
         # Testing invalid calls todo - add more to this one
         for statement in tc.INVALID_FUNCCALL:
@@ -344,7 +363,12 @@ class TypeTests(unittest.TestCase):
             # Conduct analysis
             error_log, global_scope, indexed_types = do_semantic_analysis(statement, "script", False);
 
-            #print_debug_info(statement, indexed_types, error_log)
+            # Ensure that an error has occurred. Check the type of error too.
+            self.assertNotEqual(0, error_log.total_entries());
+
+
+
+
 
     def test_return(self):
         # testing valid statements
@@ -359,6 +383,7 @@ class TypeTests(unittest.TestCase):
             error_log, global_scope, indexed_types = do_semantic_analysis(statement, 'script')
 
             self.assertNotEqual(0, error_log.total_entries())
+
 
     def test_func_call_expr(self):
         # Though this is an expression a special test case must be made as the function declaration must exist first

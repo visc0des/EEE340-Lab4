@@ -281,9 +281,18 @@ VALID_TEST_PARAM = [
     # todo - Let's test functions with variable declarations inside it. Also with some shadowing
 ]
 
+INVALID_TEST_PARAM = [
+
+    # Testing out variables of same parameter name
+    ['func thisFunc(thisVar  : Int) { var thisVar : Bool\nthisVar = false }', Category.DUPLICATE_NAME]
+
+
+]
+
 VALID_FUNCCALL = [
 
-    # 'func myFunc(var1: Int, var2 : String) {}\nmyFunc(10, "balls")'
+    'func myFunc(var1: Int, var2 : String) {}\nmyFunc(10, "balls and books")',
+    'func emptyFunc() {}\nemptyFunc()'
 ]
 
 INVALID_FUNCCALL = [
@@ -300,6 +309,7 @@ VALID_RETURN = [
     'func myFunc() -> Bool {return true}',
     'func myFunc() -> Int {return 53}',
     'func myFunc() -> String {return "hello world"}',
+    'func myFunc() {return}'
 ]
 
 INVALID_RETURN = [
@@ -333,5 +343,7 @@ INVALID_FUNCCALLEXPR = [
     ('func myFunc() -> String {return "Hello"}\nvar x : Int = myFunc() + 10', PrimitiveType.String, 'myFunc()'),
     ('func myFunc(num : Int) {}\nvar x : Int = myFunc(10)', PrimitiveType.Void, 'myFunc()'),
     ('func myFunc(num : Int) -> Bool {return true}\nvar x : Int = myFunc()', PrimitiveType.Bool, 'myFunc()')
+
+    # Can we insert one where there is no function declaration?
 
 ]

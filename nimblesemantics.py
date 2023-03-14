@@ -172,10 +172,12 @@ class InferTypesAndCheckConstraints(NimbleListener):
 
             if ctx.expr() is None:
                 self.error_log.add(ctx, Category.INVALID_RETURN,
-                                   "Type returned dose not match function declaration type")
+                                   f"ERROR: Function of type void cannot return something.")
+
             elif return_type != self.type_of[ctx.expr()]:
                 self.error_log.add(ctx, Category.INVALID_RETURN,
-                                   "Type returned dose not match function declaration type")
+                                   f"ERROR: Type returned ({self.type_of[ctx.expr()]}) does not match function "
+                                   f"declaration type ({return_type}).")
 
         else:
             if expr is not None:
