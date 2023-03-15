@@ -275,24 +275,19 @@ VALID_TEST_PARAM = [
 
     # ^ Made multidimentioanl array for testing here, where we have the name of a function
     # paired with a dictionary of all its parameters
-
-
-
-    # todo - Let's test functions with variable declarations inside it. Also with some shadowing
 ]
 
 INVALID_TEST_PARAM = [
-
     # Testing out variables of same parameter name
     ['func thisFunc(thisVar  : Int) { var thisVar : Bool\nthisVar = false }', Category.DUPLICATE_NAME]
-
-
 ]
 
 VALID_FUNCCALL = [
 
+    'func myFunc(var1: Int, var2 : String) {}\nmyFunc(10, "balls")',
+    'func myFunc(var1: Int, var2 : Int) {if var1 < var2 {print var1} else {print var2}}\nmyFunc(10,12)',
     'func myFunc(var1: Int, var2 : String) {}\nmyFunc(10, "balls and books")',
-    'func emptyFunc() {}\nemptyFunc()'
+    'func emptyFunc() {}\nemptyFunc()',
 ]
 
 INVALID_FUNCCALL = [
@@ -300,7 +295,6 @@ INVALID_FUNCCALL = [
     'func myFunc(var1: Int, var2 : Bool) {}\nmyFunc("cat", "and mouse")',
     'func myFunc(var1: Int, var2 : Bool) {}\nNOTmyFunc("cat", "and mouse")',
     'func myFunc(var1: Int, var2 : Bool) {}\nMissingArgFunc("cat")',
-
 ]
 
 VALID_RETURN = [
@@ -314,12 +308,6 @@ VALID_RETURN = [
 
 INVALID_RETURN = [
     'return 10',
-    #'var X : Int = 30\nreturn X',
-
-    #'func myFunc() -> Bool {return 10}',
-    #'func myFunc() -> Int {return "Hello"}',
-    #'func myFunc() -> String {return true}',
-
     'var X : Int = 30\nreturn X',
     'func myFunc() -> Bool {return}',
     'func myFunc() -> Bool {return 10}',
@@ -336,6 +324,7 @@ VALID_FUNCCALLEXPR = [
     ('func myFunc(num : Int) -> Int {return 10 + num}\nvar test : Int = myFunc(10)', PrimitiveType.Int, 'myFunc(10)'),
     ('func myFunc(num : Int) -> String {return "Hello"}\nvar test : String = myFunc(10)', PrimitiveType.String,
      'myFunc(10)'),
+    ('func myFunc() {var x : Int = 10}\nvar x : Int = 20 myFunc()', PrimitiveType.Void, 'myFunc()'),
 ]
 
 INVALID_FUNCCALLEXPR = [ # todo - can we include error categories in here too?
@@ -343,9 +332,13 @@ INVALID_FUNCCALLEXPR = [ # todo - can we include error categories in here too?
     ('func myFunc() -> String {return "Hello"}\nvar x : Int = myFunc() + 10', PrimitiveType.String, 'myFunc()'),
     ('func myFunc(num : Int) {}\nvar x : Int = myFunc(10)', PrimitiveType.Void, 'myFunc()'),
     ('func myFunc(num : Int) -> Bool {return true}\nvar x : Int = myFunc()', PrimitiveType.Bool, 'myFunc()'),
+
     ('var x : Int = myFunc()', PrimitiveType.Int, 'myFunc()'),
     # Can we insert one where there is no function declaration?
-
+    ('var x : Int = myFunc()', PrimitiveType.Bool, 'myFunc()'),
+    ('func myFunc() {var x : Int = 10}\nvar y : Int = x + 3 myFunc()', PrimitiveType.Void, 'myFunc()'),
+    ('myfunc()', PrimitiveType.Void, 'myfunc()'),
+    ('func myFunc() {return}\nvar x : Int = myFunc()', PrimitiveType.Void, 'myFunc()'),
 ]
 
 # There is nothing to do for function call statements.
@@ -411,6 +404,5 @@ UNREACHABLE_CODE = [
     print "Neither will this." 
     
     """
-
 
 ]

@@ -226,7 +226,12 @@ class InferTypesAndCheckConstraints(NimbleListener):
 
     def exitFuncCallExpr(self, ctx:NimbleParser.FuncCallExprContext):
         # Need to assign it the type returned by the function
-        self.type_of[ctx] = self.type_of[ctx.funcCall()]
+        _type = self.type_of[ctx.funcCall()]
+        if _type == PrimitiveType.Void:
+            self.error_log.add(ctx, Category.INVALID_CALL, "A void type function can not act as an expression")
+            self.type_of[ctx] = PrimitiveType.ERROR;
+            return
+        self.type_of[ctx] = _type
 
     def exitFuncCallStmt(self, ctx:NimbleParser.FuncCallStmtContext):
         # Don't need to do anything here

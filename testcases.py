@@ -361,7 +361,7 @@ class TypeTests(unittest.TestCase):
         for statement in tc.INVALID_FUNCCALL:
 
             # Conduct analysis
-            error_log, global_scope, indexed_types = do_semantic_analysis(statement, "script", False);
+            error_log, global_scope, indexed_types = self.get_invalid_testItems(statement)
 
             # Ensure that an error has occurred. Check the type of error too.
             self.assertNotEqual(0, error_log.total_entries());
