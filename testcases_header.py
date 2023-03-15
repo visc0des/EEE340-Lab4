@@ -403,6 +403,16 @@ UNREACHABLE_CODE = [
     print "First line in main won't be reached."
     print "Neither will this." 
     
+    """,
+    """
+    if 30 == 10 {
+        print "Is reachable"
+        return
+        print "Not reachable"
+    } else {
+        print "No return here"
+    }
+    print "I should be reachable"
     """
 
 ]
