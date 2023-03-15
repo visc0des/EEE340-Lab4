@@ -277,10 +277,17 @@ VALID_TEST_PARAM = [
     # paired with a dictionary of all its parameters
 ]
 
+INVALID_TEST_PARAM = [
+    # Testing out variables of same parameter name
+    ['func thisFunc(thisVar  : Int) { var thisVar : Bool\nthisVar = false }', Category.DUPLICATE_NAME]
+]
+
 VALID_FUNCCALL = [
 
     # 'func myFunc(var1: Int, var2 : String) {}\nmyFunc(10, "balls")'
     'func myFunc(var1: Int, var2 : Int) {if var1 < var2 {print var1} else {print var2}}\nmyFunc(10,12)'
+    'func myFunc(var1: Int, var2 : String) {}\nmyFunc(10, "balls and books")',
+    'func emptyFunc() {}\nemptyFunc()'
 ]
 
 INVALID_FUNCCALL = [
@@ -296,6 +303,7 @@ VALID_RETURN = [
     'func myFunc() -> Bool {return true}',
     'func myFunc() -> Int {return 53}',
     'func myFunc() -> String {return "hello world"}',
+    'func myFunc() {return}'
 ]
 
 INVALID_RETURN = [

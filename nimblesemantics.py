@@ -156,26 +156,33 @@ class InferTypesAndCheckConstraints(NimbleListener):
     def exitReturn(self, ctx:NimbleParser.ReturnContext):
         # must match the function definition's type Will create an error in the error log
         # in the main only a bare return can be used
-        expr = ctx.expr()
+
+        # todo -- handle unreachable code.
+
+        expr = ctx.expr() #
 
         # checking if in main scope
         if self.current_scope.name == "$main" and expr is not None:
-            self.error_log.add(ctx, Category.INVALID_RETURN, "Can't return anything from the main")
+            self.error_log.add(ctx, Category.INVALID_RETURN, "ERROR: Can't return anything from the main.")
             return
 
         # checking if type matches function
         return_type = self.current_scope.return_type
         if return_type is not PrimitiveType.Void:
+
             if ctx.expr() is None:
                 self.error_log.add(ctx, Category.INVALID_RETURN,
-                                   "Type returned dose not match function declaration type")
+                                   f"ERROR: Function of type void cannot return something.")
+
             elif return_type != self.type_of[ctx.expr()]:
                 self.error_log.add(ctx, Category.INVALID_RETURN,
-                                   "Type returned dose not match function declaration type")
+                                   f"ERROR: Type returned ({self.type_of[ctx.expr()]}) does not match function "
+                                   f"declaration type ({return_type}).")
+
         else:
             if expr is not None:
                 self.error_log.add(ctx, Category.INVALID_RETURN,
-                                   "Type returned dose not match function declaration type")
+                                   f"ERROR: Function declaration has return type ({PrimitiveType.Void}).")
 
     def exitFuncCall(self, ctx:NimbleParser.FuncCallContext):
         # ensure that the function exists within the global scope otherwise it's an error
