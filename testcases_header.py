@@ -284,10 +284,10 @@ INVALID_TEST_PARAM = [
 
 VALID_FUNCCALL = [
 
-    # 'func myFunc(var1: Int, var2 : String) {}\nmyFunc(10, "balls")'
-    'func myFunc(var1: Int, var2 : Int) {if var1 < var2 {print var1} else {print var2}}\nmyFunc(10,12)'
+    'func myFunc(var1: Int, var2 : String) {}\nmyFunc(10, "balls")',
+    'func myFunc(var1: Int, var2 : Int) {if var1 < var2 {print var1} else {print var2}}\nmyFunc(10,12)',
     'func myFunc(var1: Int, var2 : String) {}\nmyFunc(10, "balls and books")',
-    'func emptyFunc() {}\nemptyFunc()'
+    'func emptyFunc() {}\nemptyFunc()',
 ]
 
 INVALID_FUNCCALL = [
