@@ -345,7 +345,7 @@ INVALID_FUNCCALLEXPR = [ # todo - can we include error categories in here too?
 
 UNREACHABLE_CODE = [
 
-    """ 
+    """
     func myFunc() -> String {
         var x : String = "String"
         var y : Int
@@ -356,7 +356,7 @@ UNREACHABLE_CODE = [
         y = 10
         x = "No"
         y = y + 2
-        
+
         if true {
             print x
             print (y + 10)
@@ -370,33 +370,54 @@ UNREACHABLE_CODE = [
                     print ("The answer to the universe.")
                 }
             }
-            
+
         }
-        
+
     }
     """,
 
     """
     func firstFunc() {
+        
+        if 2 == 3 {
+            return 
+        }
+        
+        print "Believe it or not, this is reachable."
         return
-        print 90
+        print "Not this one though."
     }
     
     func secondFunc() -> Int {
+        
+        
+        print "Here's a totally blocked if statement"
         if 30 == 10 {
+        
             print "Is reachable"
-            return 1
+            
+            if true {
+                print "This one's reachable."
+                return 3
+            }
+            else {
+                return 2
+            }
             print "Not reachable"
+
         }
         else {
-            
-            return 1
-            print "Won't be reached"
+            return 10
+            print "Neither is this"
         }
         
-        print "This one is reachable!!???"
+        if 0 < 1 {
+            print "This one is reachable!!??? Nope."
+        }
+
         return 0
-        print "Ain't gonna reach this one either"
+        print "Ain't gonna reach the above return statement either"
+        
     }
     
     return 
@@ -404,6 +425,7 @@ UNREACHABLE_CODE = [
     print "Neither will this." 
     
     """,
+
     """
     if 30 == 10 {
         print "Is reachable"
@@ -413,12 +435,19 @@ UNREACHABLE_CODE = [
         print "No return here"
     }
     print "I should be reachable"
+
     """
 
 ]
 
 
 MISSING_RETURN = {
+
+    # Basically, if we encounter a block node of a function definition, and
+    # not all of its routes are covered - either via a totally blocking if or
+    # a simple return statement, minus all the unreachable code part, then there are missing
+    # return statements.
+
 
     # This one is not good
     """

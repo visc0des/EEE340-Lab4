@@ -275,6 +275,11 @@ class InferTypesAndCheckConstraints(NimbleListener):
                 if type(this_statement) == NimbleParser.ReturnContext:
                     return_found = True;
 
+                # Check if current statement was a totally blocked if statement
+                if type(this_statement) == NimbleParser.IfContext:
+                    if self.check_if_totalblocked(this_statement):
+                        return_found = True;
+
             # If return found, set all following statements to unreachable
             else:
 
@@ -284,6 +289,97 @@ class InferTypesAndCheckConstraints(NimbleListener):
                 # If we encounter an if or while statement, descend into
                 # their block nodes and set all their statements to unreachable.
                 self.check_if_while_encountered(this_statement);
+
+        # todo - clean this code below
+
+        # Check if parent node of block node current inside of a function definition.
+        # If so, then we check through the block statement (a second pass yes) to ensure
+        # that we all routes are blocked.
+        if type(ctx.parentCtx.parentCtx) == NimbleParser.FuncDefContext:
+
+            # Only check if return type is not void
+            funcCtx = ctx.parentCtx.parentCtx;
+            if funcCtx.TYPE() is None:
+                print(f"\nFunction {funcCtx.ID().getText()} is type void. ")
+            else:
+                print(f"\nFunction {funcCtx.ID().getText()} is type {funcCtx.TYPE().getText()}. ")
+
+
+                fully_blocked = False;
+                for this_statement in ctx.statement():
+
+                    if type(this_statement) == NimbleParser.IfContext:
+                        if self.check_if_totalblocked(this_statement):
+                            fully_blocked = True;
+
+                    elif type(this_statement) == NimbleParser.ReturnContext:
+                        fully_blocked = True;
+
+                if not fully_blocked:
+                    self.error_log.add(ctx, Category.MISSING_RETURN, f"Not all routes in block node "
+                                                                     f"{ctx.getText()} has a return staement.");
+
+
+    def check_if_totalblocked(self, this_if_statement):
+        """ Checks if passed in this_if_statement is "totally blocked", meaning there
+        is a return statement in all possible routes of the statement.
+
+        The flow of the code makes it so that anything after a totally blocked if
+        statement in the block node is basically unreachable. Basically,
+        a totally blocked if statement serves as a return statement.
+
+        Returns: True if totally blocked. False otherwise. """
+
+        # Booleans to track if return statement or totally blocked if found
+        # in the if and else block of the statement. Default to False.
+        if_blocked = False;
+        else_blocked = False;
+
+        # Check if an else block exists, if not, can't be totally blocked - return False.
+        if this_if_statement.block(1) is None:
+            return False;
+
+        # Look through if-block
+        for this_statement in this_if_statement.block(0).statement():
+
+            # If we encounter another if statement, check if it's totally blocked.
+            # If so, is basically a return statement.
+            if type(this_statement) == NimbleParser.IfContext:
+                if self.check_if_totalblocked(this_statement):
+                    if_blocked = True;
+                    break;
+
+            # If we encounter a return statement at any point, if-block route is totally blocked
+            elif type(this_statement) == NimbleParser.ReturnContext:
+                if_blocked = True;
+                break;
+
+        # If the if-block is not totally blocked, no point in checking else-block for blockage.
+        if if_blocked:
+
+            # Look through else-block
+            for this_statement in this_if_statement.block(1).statement():
+
+                # If we encounter a fully blocked if-statement
+                # If so, is basically a return statement.
+                if type(this_statement) == NimbleParser.IfContext:
+                    if self.check_if_totalblocked(this_statement):
+                        else_blocked = True;
+                        break;
+
+                # If we encounter a return statement at any point, else-block route is totally blocked
+                elif type(this_statement) == NimbleParser.ReturnContext:
+                    else_blocked = True;
+                    break;
+
+
+        # Return true if all routes of if statement are blocked.
+        if if_blocked and else_blocked:
+            return True;
+        else:
+            return False;
+
+
 
     def check_if_while_encountered(self, this_statement):
 
