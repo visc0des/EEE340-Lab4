@@ -268,11 +268,8 @@ VALID_SIMPLE_FUNCDEF = [
 # "I don't think there's a way for us to test invalid func definitions."
 
 VALID_TEST_PARAM = [
-
-    # Can we test functions with no parameters
     ['func myFunc(var1 : Int, var2 : String) -> Bool {}\nfunc secondFunc(var3 : Bool) -> Int {}',
      [['myFunc', {'var1' : PrimitiveType.Int, 'var2' : PrimitiveType.String}], ['secondFunc', {'var3' : PrimitiveType.Bool}]]]
-
     # ^ Made multidimentioanl array for testing here, where we have the name of a function
     # paired with a dictionary of all its parameters
 ]
@@ -283,7 +280,6 @@ INVALID_TEST_PARAM = [
 ]
 
 VALID_FUNCCALL = [
-
     'func myFunc(var1: Int, var2 : String) {}\nmyFunc(10, "balls")',
     'func myFunc(var1: Int, var2 : Int) {if var1 < var2 {print var1} else {print var2}}\nmyFunc(10,12)',
     'func myFunc(var1: Int, var2 : String) {}\nmyFunc(10, "balls and books")',
@@ -291,7 +287,6 @@ VALID_FUNCCALL = [
 ]
 
 INVALID_FUNCCALL = [
-
     'func myFunc(var1: Int, var2 : Bool) {}\nmyFunc("cat", "and mouse")',
     'func myFunc(var1: Int, var2 : Bool) {}\nNOTmyFunc("cat", "and mouse")',
     'func myFunc(var1: Int, var2 : Bool) {}\nMissingArgFunc("cat")',
