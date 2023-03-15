@@ -359,7 +359,7 @@ UNREACHABLE_CODE = [
         var m : Int
         var theAnswer : Int = 42
         x = "String 2"
-        
+        return "The string of power!"
         y = 10
         x = "No"
         y = y + 2
@@ -374,7 +374,6 @@ UNREACHABLE_CODE = [
                 m = 90
                 print m
                 if (theAnswer == 42) {
-                    
                     print ("The answer to the universe.")
                 }
             }

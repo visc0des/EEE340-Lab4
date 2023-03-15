@@ -259,63 +259,69 @@ class InferTypesAndCheckConstraints(NimbleListener):
         # Doesn't need any semantic analysis or constraint checking.
         pass
 
+
+    # Ohhhh yess it's "recursion time"
     def exitBlock(self, ctx: NimbleParser.BlockContext):
 
-        # Go through all the statement nodes in this body, if we
-        # encounter a return node, mark the remaining set of nodes as unreachable
-        body_statements = [this_statement for this_statement in ctx.statement()]
-
+        # Search for a return statement in a given block node.
+        # If one found, set all statements (if there are any) after the
+        # return statement to unreachable.
         return_found = False;
-        for this_statement in body_statements:
+        for this_statement in ctx.statement():
 
-            # If we have found a return, set all other statements to unreachable
-            if return_found:
+            if not return_found:
+
+                # Check if current statement was a return
+                if type(this_statement) == NimbleParser.ReturnContext:
+                    return_found = True;
+
+            # If return found, set all following statements to unreachable
+            else:
 
                 self.error_log.add(this_statement, Category.UNREACHABLE_STATEMENT,
                                    f"Statement [{this_statement.getText()}] is unreachable.");
 
-                # If encounter block, call recursive function that sets all to unreachable.
-                if type(this_statement) == NimbleParser.IfContext:
-                    self.set_if_unreachable(this_statement);
-                elif type(this_statement) == NimbleParser.WhileContext:
-                    self.set_while_unreachable(this_statement);
+                # If we encounter an if or while statement, descend into
+                # their block nodes and set all their statements to unreachable.
+                self.check_if_while_encountered(this_statement);
 
+    def check_if_while_encountered(self, this_statement):
 
-            else:
-
-                # Check if have found a return statement
-                if type(this_statement) == NimbleParser.ReturnContext:
-                    print("\nWe found a return statement");
-                    return_found = True;
+        # Wrapper function to check if we encountered an if or while statement.
+        # Descend into their blocks and set all their statements to unreachable.
+        if type(this_statement) == NimbleParser.IfContext:
+            self.set_if_unreachable(this_statement);
+        elif type(this_statement) == NimbleParser.WhileContext:
+            self.set_while_unreachable(this_statement);
 
 
     def set_while_unreachable(self, this_while):
 
+        # Iterate through all statements in the block node...
         for this_statement in this_while.block().statement():
 
+            # Set each as unreachable
             self.error_log.add(this_statement, Category.UNREACHABLE_STATEMENT,
                                f"Statement [{this_statement.getText()}] is unreachable.");
 
-
-            if type(this_statement) == NimbleParser.IfContext:
-                self.set_if_unreachable(this_statement);
-            elif type(this_statement) == NimbleParser.WhileContext:
-                self.set_while_unreachable(this_statement);
+            # If we encounter another if or while statement, descend into
+            # their block nodes and set all their statements to unreachable.
+            self.check_if_while_encountered(this_statement);
 
 
     def set_if_unreachable(self, this_if):
 
+        # Iterate through all statements of all its block nodes...
         for this_block in this_if.block():
-
             for this_statement in this_block.statement():
 
+                # Set each as unreachable
                 self.error_log.add(this_statement, Category.UNREACHABLE_STATEMENT,
                                    f"Statement [{this_statement.getText()}] is unreachable.");
 
-                if type(this_statement) == NimbleParser.IfContext:
-                    self.set_if_unreachable(this_statement);
-                elif type(this_statement) == NimbleParser.WhileContext:
-                    self.set_while_unreachable(this_statement);
+                # If we encounter another if or while statement, descend into
+                # their block nodes and set all their statements to unreachable.
+                self.check_if_while_encountered(this_statement);
 
 
     def set_block_unreachable(self, this_node):
