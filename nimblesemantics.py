@@ -224,11 +224,6 @@ class InferTypesAndCheckConstraints(NimbleListener):
         else:
             self.type_of[ctx] = func_symbol.type.return_type;
 
-
-
-
-
-
     def exitFuncCallExpr(self, ctx:NimbleParser.FuncCallExprContext):
         # Need to assign it the type returned by the function
         self.type_of[ctx] = self.type_of[ctx.funcCall()]
@@ -254,17 +249,89 @@ class InferTypesAndCheckConstraints(NimbleListener):
         self.current_scope = self.current_scope.enclosing_scope
 
     def exitBody(self, ctx: NimbleParser.BodyContext):
-        # Doesn't need any semantic analysis or constraint checking.
-        pass
+        pass;
+
+
+
+
 
     def exitVarBlock(self, ctx: NimbleParser.VarBlockContext):
         # Doesn't need any semantic analysis or constraint checking.
         pass
 
     def exitBlock(self, ctx: NimbleParser.BlockContext):
-        # I don't think anything actually needs to be done here as it will never have an error
-        # and doesn't need typed.
-        pass
+
+        # Go through all the statement nodes in this body, if we
+        # encounter a return node, mark the remaining set of nodes as unreachable
+        body_statements = [this_statement for this_statement in ctx.statement()]
+
+        return_found = False;
+        for this_statement in body_statements:
+
+            # If we have found a return, set all other statements to unreachable
+            if return_found:
+
+                self.error_log.add(this_statement, Category.UNREACHABLE_STATEMENT,
+                                   f"Statement [{this_statement.getText()}] is unreachable.");
+
+                # If encounter block, call recursive function that sets all to unreachable.
+                if type(this_statement) == NimbleParser.IfContext:
+                    self.set_if_unreachable(this_statement);
+                elif type(this_statement) == NimbleParser.WhileContext:
+                    self.set_while_unreachable(this_statement);
+
+
+            else:
+
+                # Check if have found a return statement
+                if type(this_statement) == NimbleParser.ReturnContext:
+                    print("\nWe found a return statement");
+                    return_found = True;
+
+
+    def set_while_unreachable(self, this_while):
+
+        for this_statement in this_while.block().statement():
+
+            self.error_log.add(this_statement, Category.UNREACHABLE_STATEMENT,
+                               f"Statement [{this_statement.getText()}] is unreachable.");
+
+
+            if type(this_statement) == NimbleParser.IfContext:
+                self.set_if_unreachable(this_statement);
+            elif type(this_statement) == NimbleParser.WhileContext:
+                self.set_while_unreachable(this_statement);
+
+
+    def set_if_unreachable(self, this_if):
+
+        for this_block in this_if.block():
+
+            for this_statement in this_block.statement():
+
+                self.error_log.add(this_statement, Category.UNREACHABLE_STATEMENT,
+                                   f"Statement [{this_statement.getText()}] is unreachable.");
+
+                if type(this_statement) == NimbleParser.IfContext:
+                    self.set_if_unreachable(this_statement);
+                elif type(this_statement) == NimbleParser.WhileContext:
+                    self.set_while_unreachable(this_statement);
+
+
+    def set_block_unreachable(self, this_node):
+
+        for this_statement in this_node.block().statement():
+
+
+            # Set each statement to unreachable.
+            # If encounter another block, descend tree with recursion
+            self.error_log.add(this_statement, Category.UNREACHABLE_STATEMENT,
+                               f"Statement [{this_statement.getText()}] is unreachable.");
+
+            if type(this_statement) == NimbleParser.BlockContext:
+                self.set_block_unreachable(this_statement);
+
+
 
     # --------------------------------------------------------
     # Variable declarations

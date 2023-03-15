@@ -354,7 +354,7 @@ class TypeTests(unittest.TestCase):
             # Just ensure no errors have occurred.
             self.assertEqual(0, error_log.total_entries());
 
-            print_debug_info(statement, indexed_types, error_log);
+            # print_debug_info(statement, indexed_types, error_log);
 
 
         # Testing invalid calls todo - add more to this one
@@ -375,7 +375,7 @@ class TypeTests(unittest.TestCase):
         for statement in tc.VALID_RETURN:
             error_log, global_scope, indexed_types = self.get_valid_testItems(statement)
 
-            print_debug_info(statement, indexed_types, error_log);
+            # print_debug_info(statement, indexed_types, error_log);
 
         # testing invalid statements
         for statement in tc.INVALID_RETURN:
@@ -395,3 +395,16 @@ class TypeTests(unittest.TestCase):
 
         for statement, type, expr in tc.INVALID_FUNCCALLEXPR:
             self.get_invalid_testItems(statement)
+
+
+    # ------ Bonus testing ---------
+
+    def test_unreachable(self):
+
+        # The simplest way to test this really is by printing out the debug info,
+        # and checking if it makes sense with the test cases code.
+        for statement in tc.UNREACHABLE_CODE:
+
+            error_log, global_scope, indexed_types = do_semantic_analysis(statement, 'script', False);
+            print_debug_info(statement, indexed_types, error_log);
+

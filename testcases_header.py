@@ -338,12 +338,80 @@ VALID_FUNCCALLEXPR = [
      'myFunc(10)'),
 ]
 
-INVALID_FUNCCALLEXPR = [
+INVALID_FUNCCALLEXPR = [ # todo - can we include error categories in here too?
     ('func myFunc() -> Bool {return true}\nvar x : String = myFunc()', PrimitiveType.Bool, 'myFunc()'),
     ('func myFunc() -> String {return "Hello"}\nvar x : Int = myFunc() + 10', PrimitiveType.String, 'myFunc()'),
     ('func myFunc(num : Int) {}\nvar x : Int = myFunc(10)', PrimitiveType.Void, 'myFunc()'),
-    ('func myFunc(num : Int) -> Bool {return true}\nvar x : Int = myFunc()', PrimitiveType.Bool, 'myFunc()')
-
+    ('func myFunc(num : Int) -> Bool {return true}\nvar x : Int = myFunc()', PrimitiveType.Bool, 'myFunc()'),
+    ('var x : Int = myFunc()', PrimitiveType.Int, 'myFunc()'),
     # Can we insert one where there is no function declaration?
+
+]
+
+# There is nothing to do for function call statements.
+
+UNREACHABLE_CODE = [
+
+    """ 
+    func myFunc() -> String {
+        var x : String = "String"
+        var y : Int
+        var m : Int
+        var theAnswer : Int = 42
+        x = "String 2"
+        
+        y = 10
+        x = "No"
+        y = y + 2
+        
+        if true {
+            print x
+            print (y + 10)
+        }
+        else {
+            return "Please return this."
+            while true {
+                m = 90
+                print m
+                if (theAnswer == 42) {
+                    
+                    print ("The answer to the universe.")
+                }
+            }
+            
+        }
+        
+    }
+    """,
+
+    """
+    func firstFunc() {
+        return
+        print 90
+    }
+    
+    func secondFunc() -> Int {
+        if 30 == 10 {
+            print "Is reachable"
+            return 1
+            print "Not reachable"
+        }
+        else {
+            
+            return 1
+            print "Won't be reached"
+        }
+        
+        print "This one is reachable!!???"
+        return 0
+        print "Ain't gonna reach this one either"
+    }
+    
+    return 
+    print "First line in main won't be reached."
+    print "Neither will this." 
+    
+    """
+
 
 ]
