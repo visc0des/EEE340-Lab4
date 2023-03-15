@@ -406,3 +406,68 @@ UNREACHABLE_CODE = [
     """
 
 ]
+
+
+MISSING_RETURN = {
+
+    # This one is not good
+    """
+    func myFunc() {
+    }    
+    """,
+
+    # This one is good
+    """
+    func myFunc() -> Int {
+        return 10
+    }  
+    """,
+
+    # This one is not good
+    """ 
+    func myFunc() -> Int {
+    }
+    """,
+
+    # This one is good
+    """
+    func myFunc() -> Int {
+        
+        if true {
+            print 10
+            return 10
+        }
+        else {
+            return 10
+        }
+        
+    }
+    """,
+
+    # This one is not good
+    """
+    func myFunc() -> Int {
+
+        if true {
+            print 10
+        }
+        else {
+            return 10
+        }
+
+    }
+    """,
+
+    # This one is good
+    """ 
+    func myFunc() -> Int {
+
+        if true {
+        }
+        else {
+        }
+        return 19
+    }
+    """,
+
+}

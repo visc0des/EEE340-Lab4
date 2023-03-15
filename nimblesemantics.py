@@ -157,8 +157,6 @@ class InferTypesAndCheckConstraints(NimbleListener):
         # must match the function definition's type Will create an error in the error log
         # in the main only a bare return can be used
 
-        # todo -- handle unreachable code.
-
         expr = ctx.expr() #
 
         # checking if in main scope
@@ -255,9 +253,6 @@ class InferTypesAndCheckConstraints(NimbleListener):
 
     def exitBody(self, ctx: NimbleParser.BodyContext):
         pass;
-
-
-
 
 
     def exitVarBlock(self, ctx: NimbleParser.VarBlockContext):
