@@ -118,7 +118,6 @@ class InferTypesAndCheckConstraints(NimbleListener):
         self.current_scope = self.current_scope.enclosing_scope
         # Everything inside gets handled at lower levels.
 
-    # TODO need to still clean this
     def sub_var_dec(self, ctx):
 
         # Extracting variable type declared, its primitive type,
