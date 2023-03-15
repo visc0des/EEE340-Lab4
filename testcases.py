@@ -393,8 +393,13 @@ class TypeTests(unittest.TestCase):
             error_log, global_scope, indexed_types = self.get_valid_testItems(statement)
             self.assertEqual(type, indexed_types[2][expr])
 
-        for statement, type, expr in tc.INVALID_FUNCCALLEXPR:
-            self.get_invalid_testItems(statement)
+        for statement, expected_error in tc.INVALID_FUNCCALLEXPR:
+            error_log, global_scope, indexed_types = self.get_invalid_testItems(statement)
+            found = False
+            for i in range(1, len(statement.splitlines()) + 1):
+                if error_log.includes_on_line(expected_error, i):
+                    found = True
+            self.assertTrue(found)
 
 
     # ------ Bonus testing ---------

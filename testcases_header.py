@@ -322,19 +322,15 @@ VALID_FUNCCALLEXPR = [
     ('func myFunc() {var x : Int = 10}\nvar x : Int = 20 myFunc()', PrimitiveType.Void, 'myFunc()'),
 ]
 
-INVALID_FUNCCALLEXPR = [ # todo - can we include error categories in here too?
-    ('func myFunc() -> Bool {return true}\nvar x : String = myFunc()', PrimitiveType.Bool, 'myFunc()'),
-    ('func myFunc() -> String {return "Hello"}\nvar x : Int = myFunc() + 10', PrimitiveType.String, 'myFunc()'),
-    ('func myFunc(num : Int) {}\nvar x : Int = myFunc(10)', PrimitiveType.Void, 'myFunc()'),
-    ('func myFunc(num : Int) -> Bool {return true}\nvar x : Int = myFunc()', PrimitiveType.Bool, 'myFunc()'),
-
-    ('var x : Int = myFunc()', PrimitiveType.Int, 'myFunc()'),
-    # Can we insert one where there is no function declaration?
-    ('var x : Int = myFunc()', PrimitiveType.Bool, 'myFunc()'),
-    ('func myFunc() {var x : Int = 10}\nvar y : Int = x + 3 myFunc()', PrimitiveType.Void, 'myFunc()'),
-    ('myfunc()', PrimitiveType.Void, 'myfunc()'),
-    ('func myFunc() {return}\nvar x : Int = myFunc()', PrimitiveType.Void, 'myFunc()'),
-    ('func myFunc(x : Int, num : Int) {return}\nvar y : Int = myFunc(10)', PrimitiveType.Void, 'myFunc(10)'),
+INVALID_FUNCCALLEXPR = [
+    ('func myFunc() -> Bool {return true}\nvar x : String = myFunc()', Category.ASSIGN_TO_WRONG_TYPE),
+    ('func myFunc() -> String {return "Hello"}\nvar x : Int = myFunc() + 10', Category.INVALID_BINARY_OP),
+    ('func myFunc(num : Int) {}\nvar x : Int = myFunc(10)', Category.INVALID_CALL),
+    ('func myFunc(num : Int) -> Bool {return true}\nvar x : Int = myFunc()', Category.ASSIGN_TO_WRONG_TYPE),
+    ('var x : Int = myFunc()', Category.INVALID_CALL),
+    ('func myFunc() {var x : Int = 10}\nvar y : Int = x + 3 myFunc()', Category.UNDEFINED_NAME),
+    ('func myFunc() {return}\nvar x : Int = myFunc()', Category.INVALID_CALL),
+    ('func myFunc(x : Int, num : Int) {return}\nvar y : Int = myFunc(10)', Category.INVALID_CALL),
 ]
 
 # There is nothing to do for function call statements.
