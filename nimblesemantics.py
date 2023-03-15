@@ -48,6 +48,7 @@ from errorlog import ErrorLog, Category
 from nimble import NimbleListener, NimbleParser
 from symboltable import PrimitiveType, FunctionType, Scope
 
+
 # --- Defining Classes that contain exit and enter functions ---
 
 
@@ -64,8 +65,7 @@ class DefineScopesAndSymbols(NimbleListener):
     def exitMain(self, ctx: NimbleParser.MainContext):
         self.current_scope = self.current_scope.enclosing_scope
 
-    def enterFuncDef(self, ctx:NimbleParser.FuncDefContext):
-
+    def enterFuncDef(self, ctx: NimbleParser.FuncDefContext):
         # ! Stay in global scope, just create the function "symbol" and do nothing else
 
         # Get function name
@@ -88,7 +88,6 @@ class DefineScopesAndSymbols(NimbleListener):
         self.current_scope.create_child_scope(ctx.ID().getText(), ret_type)
 
 
-
 class InferTypesAndCheckConstraints(NimbleListener):
     """
     The type of each expression parse tree node is calculated and stored in the
@@ -107,21 +106,19 @@ class InferTypesAndCheckConstraints(NimbleListener):
         self.current_scope = global_scope
         self.type_of = types
 
-    def enterFuncDef(self, ctx:NimbleParser.FuncDefContext):
+    def enterFuncDef(self, ctx: NimbleParser.FuncDefContext):
 
-        # Switch scope to that of function
+        # Switch scope to that of the function
         self.current_scope = self.current_scope.child_scope_named(ctx.ID().getText())
+        # everything else gets handled at the lower levels.
 
-        # So everything else gets handled at the lower levels.
-
-    def exitFuncDef(self, ctx:NimbleParser.FuncDefContext):
+    def exitFuncDef(self, ctx: NimbleParser.FuncDefContext):
 
         # Return to global scope
         self.current_scope = self.current_scope.enclosing_scope
+        # Everything inside gets handled at lower levels.
 
-    # Everything inside gets handled at lower levels.
-
-
+    # TODO need to still clean this
     def subVarDec(self, ctx):
         # Creating mini-lookup dictionary for verification
         # TODO this dic isn't needed as primtiveType['int'] will do the thing for us
@@ -144,21 +141,22 @@ class InferTypesAndCheckConstraints(NimbleListener):
 
         return var_text, var_primtype, this_ID, error
 
-    def exitParameterDef(self, ctx:NimbleParser.ParameterDefContext):
+    def exitParameterDef(self, ctx: NimbleParser.ParameterDefContext):
         # Create parameter symbol in the current scope (function scope)
-        # Should be the same as the var dec
+        # similar to var dec
         var_text, var_primtype, this_ID, error = self.subVarDec(ctx)
 
-        # create the symbol with the inuptted typeset the variable type accordingly
+        # create the symbol with the inputted type
         if not error:
-            self.current_scope.define(this_ID, var_primtype, True) # <-- Changed from False to True
+            self.current_scope.define(this_ID, var_primtype, True)
 
-    def exitReturn(self, ctx:NimbleParser.ReturnContext):
-        # must match the function definition's type Will create an error in the error log
+    def exitReturn(self, ctx: NimbleParser.ReturnContext):
+        # must match the function definition's type else create an error in the error log
         # in the main only a bare return can be used
 
-        expr = ctx.expr() #
+        expr = ctx.expr()
 
+        # TODO remove this as the type of the main function is type void
         # checking if in main scope
         if self.current_scope.name == "$main" and expr is not None:
             self.error_log.add(ctx, Category.INVALID_RETURN, "ERROR: Can't return anything from the main.")
@@ -167,7 +165,7 @@ class InferTypesAndCheckConstraints(NimbleListener):
         # checking if type matches function
         return_type = self.current_scope.return_type
         if return_type is not PrimitiveType.Void:
-
+            # TODO remove this as the elif catches it all
             if ctx.expr() is None:
                 self.error_log.add(ctx, Category.INVALID_RETURN,
                                    f"ERROR: Function of type void cannot return something.")
@@ -182,7 +180,7 @@ class InferTypesAndCheckConstraints(NimbleListener):
                 self.error_log.add(ctx, Category.INVALID_RETURN,
                                    f"ERROR: Function declaration has return type ({PrimitiveType.Void}).")
 
-    def exitFuncCall(self, ctx:NimbleParser.FuncCallContext):
+    def exitFuncCall(self, ctx: NimbleParser.FuncCallContext):
         # ensure that the function exists within the global scope otherwise it's an error
         # ensure that argument types match the function's parameter types otherwise it's an error
 
@@ -200,7 +198,8 @@ class InferTypesAndCheckConstraints(NimbleListener):
 
         # If it exists, check argument types if matching with parameter types
         error_found = False;
-        error_args = [];        # honestly I can't think of any better solution to this rn
+        # used for error message
+        error_args = [];
         error_params = [];
         for this_arg, this_param_type in zip(func_args, func_symbol.type.parameter_types):
 
@@ -210,7 +209,6 @@ class InferTypesAndCheckConstraints(NimbleListener):
                 error_args.append(f"{this_arg.getText()}:{self.type_of[this_arg]}");
                 error_params.append(f"{this_param_type}");
                 error_found = True;
-
 
         # If we found an error, set funcCall expression's type to ERROR.
         # Otherwise, set to return type of function
@@ -222,16 +220,17 @@ class InferTypesAndCheckConstraints(NimbleListener):
         else:
             self.type_of[ctx] = func_symbol.type.return_type;
 
-    def exitFuncCallExpr(self, ctx:NimbleParser.FuncCallExprContext):
+    def exitFuncCallExpr(self, ctx: NimbleParser.FuncCallExprContext):
         # Need to assign it the type returned by the function
+        # Checks if the type void
         _type = self.type_of[ctx.funcCall()]
         if _type == PrimitiveType.Void:
             self.error_log.add(ctx, Category.INVALID_CALL, "A void type function can not act as an expression")
-            self.type_of[ctx] = PrimitiveType.ERROR;
+            self.type_of[ctx] = PrimitiveType.ERROR
             return
         self.type_of[ctx] = _type
 
-    def exitFuncCallStmt(self, ctx:NimbleParser.FuncCallStmtContext):
+    def exitFuncCallStmt(self, ctx: NimbleParser.FuncCallStmtContext):
         # Don't need to do anything here
         pass
 
@@ -254,11 +253,9 @@ class InferTypesAndCheckConstraints(NimbleListener):
     def exitBody(self, ctx: NimbleParser.BodyContext):
         pass;
 
-
     def exitVarBlock(self, ctx: NimbleParser.VarBlockContext):
         # Doesn't need any semantic analysis or constraint checking.
         pass
-
 
     # Ohhhh yess it's "recursion time"
     def exitBlock(self, ctx: NimbleParser.BlockContext):
@@ -304,7 +301,6 @@ class InferTypesAndCheckConstraints(NimbleListener):
             else:
                 print(f"\nFunction {funcCtx.ID().getText()} is type {funcCtx.TYPE().getText()}. ")
 
-
                 fully_blocked = False;
                 for this_statement in ctx.statement():
 
@@ -318,7 +314,6 @@ class InferTypesAndCheckConstraints(NimbleListener):
                 if not fully_blocked:
                     self.error_log.add(ctx, Category.MISSING_RETURN, f"Not all routes in block node "
                                                                      f"{ctx.getText()} has a return staement.");
-
 
     def check_if_totalblocked(self, this_if_statement):
         """ Checks if passed in this_if_statement is "totally blocked", meaning there
@@ -372,14 +367,11 @@ class InferTypesAndCheckConstraints(NimbleListener):
                     else_blocked = True;
                     break;
 
-
         # Return true if all routes of if statement are blocked.
         if if_blocked and else_blocked:
             return True;
         else:
             return False;
-
-
 
     def check_if_while_encountered(self, this_statement):
 
@@ -390,12 +382,10 @@ class InferTypesAndCheckConstraints(NimbleListener):
         elif type(this_statement) == NimbleParser.WhileContext:
             self.set_while_unreachable(this_statement);
 
-
     def set_while_unreachable(self, this_while):
 
         # Iterate through all statements in the block node...
         for this_statement in this_while.block().statement():
-
             # Set each as unreachable
             self.error_log.add(this_statement, Category.UNREACHABLE_STATEMENT,
                                f"Statement [{this_statement.getText()}] is unreachable.");
@@ -404,13 +394,11 @@ class InferTypesAndCheckConstraints(NimbleListener):
             # their block nodes and set all their statements to unreachable.
             self.check_if_while_encountered(this_statement);
 
-
     def set_if_unreachable(self, this_if):
 
         # Iterate through all statements of all its block nodes...
         for this_block in this_if.block():
             for this_statement in this_block.statement():
-
                 # Set each as unreachable
                 self.error_log.add(this_statement, Category.UNREACHABLE_STATEMENT,
                                    f"Statement [{this_statement.getText()}] is unreachable.");
@@ -419,11 +407,9 @@ class InferTypesAndCheckConstraints(NimbleListener):
                 # their block nodes and set all their statements to unreachable.
                 self.check_if_while_encountered(this_statement);
 
-
     def set_block_unreachable(self, this_node):
 
         for this_statement in this_node.block().statement():
-
 
             # Set each statement to unreachable.
             # If encounter another block, descend tree with recursion
@@ -432,8 +418,6 @@ class InferTypesAndCheckConstraints(NimbleListener):
 
             if type(this_statement) == NimbleParser.BlockContext:
                 self.set_block_unreachable(this_statement);
-
-
 
     # --------------------------------------------------------
     # Variable declarations
@@ -451,7 +435,6 @@ class InferTypesAndCheckConstraints(NimbleListener):
 
             # Check if they match. If not, then there was a constraint violation
             if expr_type != var_primtype:
-
                 self.current_scope.define(this_ID, PrimitiveType.ERROR, False)
                 self.type_of[ctx] = PrimitiveType.ERROR
                 self.error_log.add(ctx, Category.ASSIGN_TO_WRONG_TYPE,
@@ -544,7 +527,7 @@ class InferTypesAndCheckConstraints(NimbleListener):
     def exitAddSub(self, ctx: NimbleParser.AddSubContext):
         # If children types correct, set type of this token to Int
         if ((ctx.op.text == '+' or ctx.op.text == '-') and
-            self.type_of[ctx.expr(0)] == PrimitiveType.Int and
+                self.type_of[ctx.expr(0)] == PrimitiveType.Int and
                 self.type_of[ctx.expr(1)] == PrimitiveType.Int):
             self.type_of[ctx] = PrimitiveType.Int
 

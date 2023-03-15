@@ -339,6 +339,7 @@ INVALID_FUNCCALLEXPR = [ # todo - can we include error categories in here too?
     ('func myFunc() {var x : Int = 10}\nvar y : Int = x + 3 myFunc()', PrimitiveType.Void, 'myFunc()'),
     ('myfunc()', PrimitiveType.Void, 'myfunc()'),
     ('func myFunc() {return}\nvar x : Int = myFunc()', PrimitiveType.Void, 'myFunc()'),
+    ('func myFunc(x : Int, num : Int) {return}\nvar y : Int = myFunc(10)', PrimitiveType.Void, 'myFunc(10)'),
 ]
 
 # There is nothing to do for function call statements.
