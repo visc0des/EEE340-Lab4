@@ -119,15 +119,12 @@ class InferTypesAndCheckConstraints(NimbleListener):
         # Everything inside gets handled at lower levels.
 
     # TODO need to still clean this
-    def subVarDec(self, ctx):
-        # Creating mini-lookup dictionary for verification
-        # TODO this dic isn't needed as primtiveType['int'] will do the thing for us
-        type_dict = {'Int': PrimitiveType.Int, 'Bool': PrimitiveType.Bool, 'String': PrimitiveType.String}
+    def sub_var_dec(self, ctx):
 
         # Extracting variable type declared, its primitive type,
         # and the ID declared
         var_text = ctx.TYPE().getText()
-        var_primtype = type_dict[var_text]
+        var_primtype = PrimitiveType[var_text]
         this_ID = ctx.ID().getText()
 
         # First thing to check is if we're declaring a duplicated variable name. Set ERROR if so and stop function.
@@ -144,7 +141,7 @@ class InferTypesAndCheckConstraints(NimbleListener):
     def exitParameterDef(self, ctx: NimbleParser.ParameterDefContext):
         # Create parameter symbol in the current scope (function scope)
         # similar to var dec
-        var_text, var_primtype, this_ID, error = self.subVarDec(ctx)
+        var_text, var_primtype, this_ID, error = self.sub_var_dec(ctx)
 
         # create the symbol with the inputted type
         if not error:
@@ -417,7 +414,7 @@ class InferTypesAndCheckConstraints(NimbleListener):
     # --------------------------------------------------------
 
     def exitVarDec(self, ctx: NimbleParser.VarDecContext):
-        var_text, var_primtype, this_ID, error = self.subVarDec(ctx)
+        var_text, var_primtype, this_ID, error = self.sub_var_dec(ctx)
 
         # If no duplicate name, and if there was an assignment,
         # check if does not violate type constraint
