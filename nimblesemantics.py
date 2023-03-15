@@ -156,20 +156,13 @@ class InferTypesAndCheckConstraints(NimbleListener):
 
         expr = ctx.expr()
 
-        # TODO remove this as the type of the main function is type void
-        # checking if in main scope
-        if self.current_scope.name == "$main" and expr is not None:
-            self.error_log.add(ctx, Category.INVALID_RETURN, "ERROR: Can't return anything from the main.")
-            return
-
         # checking if type matches function
+        # The type of the main function is PrimitiveType.Void
         return_type = self.current_scope.return_type
         if return_type is not PrimitiveType.Void:
-            # TODO remove this as the elif catches it all
             if ctx.expr() is None:
                 self.error_log.add(ctx, Category.INVALID_RETURN,
                                    f"ERROR: Function of type void cannot return something.")
-
             elif return_type != self.type_of[ctx.expr()]:
                 self.error_log.add(ctx, Category.INVALID_RETURN,
                                    f"ERROR: Type returned ({self.type_of[ctx.expr()]}) does not match function "
