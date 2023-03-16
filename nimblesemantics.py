@@ -246,7 +246,7 @@ class InferTypesAndCheckConstraints(NimbleListener):
         # Doesn't need any semantic analysis or constraint checking.
         pass
 
-    # Ohhhh yess it's "recursion time"
+    # Ohhhh yess it's "recursion time". Probably not the most elegant solution, but it's a solution :).
     def exitBlock(self, ctx: NimbleParser.BlockContext):
 
         # Search for a return statement in a given block node.
@@ -276,19 +276,14 @@ class InferTypesAndCheckConstraints(NimbleListener):
                 # their block nodes and set all their statements to unreachable.
                 self.check_if_while_encountered(this_statement);
 
-        # todo - clean this code below
-
-        # Check if parent node of block node current inside of a function definition.
-        # If so, then we check through the block statement (a second pass yes) to ensure
-        # that we all routes are blocked.
+        # If current block node is a child of a function definition, check for missing return statements:
+        # conduct second pass through all statements if there is a return or a totally blocked if-statement.
+        # If so, all routes have a return statement. Otherwise, we have a missing return.
         if type(ctx.parentCtx.parentCtx) == NimbleParser.FuncDefContext:
 
-            # Only check if return type is not void
+            # Only check if function is not a void type.
             funcCtx = ctx.parentCtx.parentCtx;
-            if funcCtx.TYPE() is None:
-                print(f"\nFunction {funcCtx.ID().getText()} is type void. ")
-            else:
-                print(f"\nFunction {funcCtx.ID().getText()} is type {funcCtx.TYPE().getText()}. ")
+            if funcCtx.TYPE() is not None:
 
                 fully_blocked = False;
                 for this_statement in ctx.statement():
@@ -302,14 +297,15 @@ class InferTypesAndCheckConstraints(NimbleListener):
 
                 if not fully_blocked:
                     self.error_log.add(ctx, Category.MISSING_RETURN, f"Not all routes in block node "
-                                                                     f"{ctx.getText()} has a return staement.");
+                                                                     f"{ctx.getText()} have a return statement.");
+
 
     def check_if_totalblocked(self, this_if_statement):
         """ Checks if passed in this_if_statement is "totally blocked", meaning there
         is a return statement in all possible routes of the statement.
 
-        The flow of the code makes it so that anything after a totally blocked if
-        statement in the block node is basically unreachable. Basically,
+        Nimble code flow makes it so that anything after a totally blocked if
+        statement in the block node is basically unreachable. In other words,
         a totally blocked if statement serves as a return statement.
 
         Returns: True if totally blocked. False otherwise. """

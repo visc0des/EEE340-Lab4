@@ -406,19 +406,35 @@ class TypeTests(unittest.TestCase):
 
     def test_unreachable(self):
 
-        # The simplest way to test this really is by printing out the debug info,
-        # and checking if it makes sense with the test cases code.
+        # Simplest way to test this really is by printing out the error log info,
+        # and checking by hand if it makes sense with the test cases code.
         for statement in tc.UNREACHABLE_CODE:
-
             error_log, global_scope, indexed_types = do_semantic_analysis(statement, 'script', False);
-            #print_debug_info(statement, indexed_types, error_log);
+            print_debug_info(statement, {}, error_log);
 
     def test_missing_return(self):
 
-        # The simplest way to test this really is by printing out the debug info,
-        # and checking if it makes sense with the test cases code.
+        # The simplest way to test is by checking if a missing return error was generated.
+        # Can use print_debug_statement() to precisely verify where return is missing.
         for statement in tc.MISSING_RETURN:
 
+            # Do semantic analysis
             error_log, global_scope, indexed_types = do_semantic_analysis(statement, 'script', False);
-            print_debug_info(statement, indexed_types, error_log);
+
+            # Check if we have at least one missing return error
+            found = False
+            line = [];
+            for i in range(1, len(statement.splitlines()) + 1):
+                if error_log.includes_on_line(Category.MISSING_RETURN, i):
+                    found = True
+                    line.append(i);
+            self.assertTrue(found)
+
+        # Explicitly putting in examples of where no returns are missing to
+        # demonstrate our understanding of not missing return statements in functions.
+        for statement in tc.NOT_MISSING_RETURN:
+
+            # Do semantic analysis
+            error_log, global_scope, indexed_types = do_semantic_analysis(statement, 'script', False);
+            self.assertEqual(0, error_log.total_entries());
 

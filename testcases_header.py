@@ -344,17 +344,17 @@ UNREACHABLE_CODE = [
         var m : Int
         var theAnswer : Int = 42
         x = "String 2"
-        return "The string of power!"
+        return "The returned string of power!"
         y = 10
         x = "No"
         y = y + 2
-
         if true {
             print x
             print (y + 10)
         }
         else {
             return "Please return this."
+            print "Sorry, I can't :/."
             while true {
                 m = 90
                 print m
@@ -382,12 +382,9 @@ UNREACHABLE_CODE = [
     
     func secondFunc() -> Int {
         
-        
-        print "Here's a totally blocked if statement"
+        print "Here's two levels of totally blocked if statements!"
         if 30 == 10 {
-        
             print "Is reachable"
-            
             if true {
                 print "This one's reachable."
                 return 3
@@ -396,7 +393,6 @@ UNREACHABLE_CODE = [
                 return 2
             }
             print "Not reachable"
-
         }
         else {
             return 10
@@ -406,9 +402,9 @@ UNREACHABLE_CODE = [
         if 0 < 1 {
             print "This one is reachable!!??? Nope."
         }
-
+        
+        print "lol this print is unreachable because of the totally blocked if statement above."
         return 0
-        print "Ain't gonna reach the above return statement either"
         
     }
     
@@ -440,65 +436,76 @@ MISSING_RETURN = {
     # a simple return statement, minus all the unreachable code part, then there are missing
     # return statements.
 
+    """ 
+    func myFunc() -> Int {
+    }
+    """,
 
-    # This one is not good
+    """
+    func myFunc() -> Int {
+        if true {
+            print 10
+        }
+        else {
+            return 10
+            print 3
+        }
+
+    }
+    """,
+
+    """
+    func myFunc() -> Bool {
+        if true {
+            if false {
+                return false
+            }
+            else {
+                print "not a return!"
+            }
+        }
+        else {
+            return true   
+        }
+    }
+    """,
+}
+
+NOT_MISSING_RETURN = [
+
     """
     func myFunc() {
     }    
     """,
 
-    # This one is good
     """
     func myFunc() -> Int {
         return 10
     }  
     """,
 
-    # This one is not good
-    """ 
-    func myFunc() -> Int {
-    }
-    """,
-
-    # This one is good
+    # This one even has unreachable code (.o.)
     """
     func myFunc() -> Int {
-        
         if true {
-            print 10
             return 10
-        }
-        else {
-            return 10
-        }
-        
-    }
-    """,
-
-    # This one is not good
-    """
-    func myFunc() -> Int {
-
-        if true {
             print 10
         }
         else {
             return 10
         }
-
     }
     """,
 
-    # This one is good
     """ 
     func myFunc() -> Int {
-
+    
         if true {
+            return 12
         }
         else {
         }
         return 19
     }
     """,
-
-}
+]
