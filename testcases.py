@@ -366,10 +366,6 @@ class TypeTests(unittest.TestCase):
             # Ensure that an error has occurred. Check the type of error too.
             self.assertNotEqual(0, error_log.total_entries());
 
-
-
-
-
     def test_return(self):
         # testing valid statements
         for statement in tc.VALID_RETURN:
@@ -383,7 +379,6 @@ class TypeTests(unittest.TestCase):
             error_log, global_scope, indexed_types = do_semantic_analysis(statement, 'script')
 
             self.assertNotEqual(0, error_log.total_entries())
-
 
     def test_func_call_expr(self):
         # Though this is an expression a special test case must be made as the function declaration must exist first
@@ -401,24 +396,37 @@ class TypeTests(unittest.TestCase):
                     found = True
             self.assertTrue(found)
 
-
     # ------ Bonus testing ---------
+    def test_unreachable(self):
 
-    # def test_unreachable(self):
-    #
-    #     # The simplest way to test this really is by printing out the debug info,
-    #     # and checking if it makes sense with the test cases code.
-    #     for statement in tc.UNREACHABLE_CODE:
-    #
-    #         error_log, global_scope, indexed_types = do_semantic_analysis(statement, 'script', False);
-    #         #print_debug_info(statement, indexed_types, error_log);
-    #
-    # def test_missing_return(self):
-    #
-    #     # The simplest way to test this really is by printing out the debug info,
-    #     # and checking if it makes sense with the test cases code.
-    #     for statement in tc.MISSING_RETURN:
-    #
-    #         error_log, global_scope, indexed_types = do_semantic_analysis(statement, 'script', False);
-    #         print_debug_info(statement, indexed_types, error_log);
-    #
+        # Simplest way to test this really is by printing out the error log info,
+        # and checking by hand if it makes sense with the test cases code.
+        for statement in tc.UNREACHABLE_CODE:
+            error_log, global_scope, indexed_types = do_semantic_analysis(statement, 'script', False);
+            print_debug_info(statement, {}, error_log);
+
+    def test_missing_return(self):
+
+        # The simplest way to test is by checking if a missing return error was generated.
+        # Can use print_debug_statement() to precisely verify where return is missing.
+        for statement in tc.MISSING_RETURN:
+
+            # Do semantic analysis
+            error_log, global_scope, indexed_types = do_semantic_analysis(statement, 'script', False);
+
+            # Check if we have at least one missing return error
+            found = False
+            line = [];
+            for i in range(1, len(statement.splitlines()) + 1):
+                if error_log.includes_on_line(Category.MISSING_RETURN, i):
+                    found = True
+                    line.append(i);
+            self.assertTrue(found)
+
+        # Explicitly putting in examples of where no returns are missing to
+        # demonstrate our understanding of not missing return statements in functions.
+        for statement in tc.NOT_MISSING_RETURN:
+
+            # Do semantic analysis
+            error_log, global_scope, indexed_types = do_semantic_analysis(statement, 'script', False);
+            self.assertEqual(0, error_log.total_entries());
