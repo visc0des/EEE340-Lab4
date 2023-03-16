@@ -342,7 +342,6 @@ class TypeTests(unittest.TestCase):
             self.assertTrue(found)
             self.assertNotEqual(0, error_log.total_entries())
 
-
     def test_funcCall(self):
 
         # Testing valid calls
@@ -356,8 +355,7 @@ class TypeTests(unittest.TestCase):
 
             # print_debug_info(statement, indexed_types, error_log);
 
-
-        # Testing invalid calls todo - add more to this one
+        # Testing invalid calls
         for statement in tc.INVALID_FUNCCALL:
 
             # Conduct analysis
@@ -369,9 +367,8 @@ class TypeTests(unittest.TestCase):
     def test_return(self):
         # testing valid statements
         for statement in tc.VALID_RETURN:
-            error_log, global_scope, indexed_types = self.get_valid_testItems(statement)
+            self.get_valid_testItems(statement)
 
-            # print_debug_info(statement, indexed_types, error_log);
 
         # testing invalid statements
         for statement in tc.INVALID_RETURN:
