@@ -405,7 +405,9 @@ UNREACHABLE_CODE = [
             print "This one is reachable!!??? Nope."
         }
         
-        print "lol this print is unreachable because of the totally blocked if statement above."
+        while true {
+            print "lol this print is unreachable because of the totally blocked if statement above."
+        }
         return 0
         
     }
@@ -420,12 +422,22 @@ UNREACHABLE_CODE = [
     if 30 == 10 {
         print "Is reachable"
         return
-        print "Not reachable"
+        while true {
+            print "Not reachable"
+        }
     } else {
         print "No return here"
     }
     print "I should be reachable"
 
+    """,
+
+    """ 
+    while true {
+        return 
+        print "Not reachable"
+    }
+    print "Still reachable."
     """
 
 ]
