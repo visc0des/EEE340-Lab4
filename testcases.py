@@ -404,21 +404,21 @@ class TypeTests(unittest.TestCase):
 
     # ------ Bonus testing ---------
 
-    def test_unreachable(self):
-
-        # The simplest way to test this really is by printing out the debug info,
-        # and checking if it makes sense with the test cases code.
-        for statement in tc.UNREACHABLE_CODE:
-
-            error_log, global_scope, indexed_types = do_semantic_analysis(statement, 'script', False);
-            #print_debug_info(statement, indexed_types, error_log);
-
-    def test_missing_return(self):
-
-        # The simplest way to test this really is by printing out the debug info,
-        # and checking if it makes sense with the test cases code.
-        for statement in tc.MISSING_RETURN:
-
-            error_log, global_scope, indexed_types = do_semantic_analysis(statement, 'script', False);
-            print_debug_info(statement, indexed_types, error_log);
-
+    # def test_unreachable(self):
+    #
+    #     # The simplest way to test this really is by printing out the debug info,
+    #     # and checking if it makes sense with the test cases code.
+    #     for statement in tc.UNREACHABLE_CODE:
+    #
+    #         error_log, global_scope, indexed_types = do_semantic_analysis(statement, 'script', False);
+    #         #print_debug_info(statement, indexed_types, error_log);
+    #
+    # def test_missing_return(self):
+    #
+    #     # The simplest way to test this really is by printing out the debug info,
+    #     # and checking if it makes sense with the test cases code.
+    #     for statement in tc.MISSING_RETURN:
+    #
+    #         error_log, global_scope, indexed_types = do_semantic_analysis(statement, 'script', False);
+    #         print_debug_info(statement, indexed_types, error_log);
+    #

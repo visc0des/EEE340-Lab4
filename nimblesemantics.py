@@ -538,7 +538,7 @@ class InferTypesAndCheckConstraints(NimbleListener):
             self.error_log.add(ctx, Category.INVALID_BINARY_OP, f"Can't compare two non-integer type expressions.")
 
     def exitVariable(self, ctx: NimbleParser.VariableContext):
-        # Simply check if ID is an existing var, or non-error type var.
+        # Simply check if ID is an existing var, or non-error type var or a function
         # If not, set type of ctx to be ERROR.
         this_ID = ctx.ID().getText()
         symbol = self.current_scope.resolve(this_ID)
@@ -547,6 +547,10 @@ class InferTypesAndCheckConstraints(NimbleListener):
             self.type_of[ctx] = PrimitiveType.ERROR
             self.error_log.add(ctx, Category.UNDEFINED_NAME,
                                f"Variable [{this_ID}] is undefined.")
+        elif symbol.type not in [PrimitiveType.Bool, PrimitiveType.Void, PrimitiveType.Int, PrimitiveType.String]:
+            self.type_of[ctx] = PrimitiveType.ERROR
+            self.error_log.add(ctx, Category.FUNCTION_USED_AS_VARIABLE,
+                               f'Function [{this_ID}] is being used as a variable')
         else:
             self.type_of[ctx] = symbol.type
 

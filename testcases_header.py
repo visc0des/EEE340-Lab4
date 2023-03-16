@@ -331,6 +331,7 @@ INVALID_FUNCCALLEXPR = [
     ('func myFunc() {var x : Int = 10}\nvar y : Int = x + 3 myFunc()', Category.UNDEFINED_NAME),
     ('func myFunc() {return}\nvar x : Int = myFunc()', Category.INVALID_CALL),
     ('func myFunc(x : Int, num : Int) {return}\nvar y : Int = myFunc(10)', Category.INVALID_CALL),
+    ('func myFunc(x : Int) {return}\nvar y : Int = myFunc', Category.FUNCTION_USED_AS_VARIABLE),
 ]
 
 # There is nothing to do for function call statements.
