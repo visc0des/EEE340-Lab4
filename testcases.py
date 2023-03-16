@@ -299,7 +299,6 @@ class TypeTests(unittest.TestCase):
 
             # Loop through function names, resolve them and check if have correct expected type.
             # Ensure no errors were generated
-            print_debug_info(statement, indexed_types, error_log)
             for func_name, expected_type in zip(func_name_list, expected_type_list):
 
                 func_symbol = global_scope.resolve(func_name);
