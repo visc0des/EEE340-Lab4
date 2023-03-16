@@ -286,6 +286,7 @@ VALID_FUNCCALL = [
     'func emptyFunc() {}\nemptyFunc()',
     'func calledFunc() {}\nfunc callingFunc() {calledFunc()}\ncallingFunc()',
     'func myFunc() {}\nvar myFunc : Int',
+    'func myFunc() {}\nfunc parmFunc(myFunc : String) {}',
 ]
 
 # Encapsulates function call statements as well.
