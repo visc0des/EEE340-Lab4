@@ -349,6 +349,7 @@ class TypeTests(unittest.TestCase):
             error_log, global_scope, indexed_types = do_semantic_analysis(statement, "script", False);
 
             # Just ensure no errors have occurred.
+            print_debug_info(statement, indexed_types, error_log)
             self.assertEqual(0, error_log.total_entries());
 
             # print_debug_info(statement, indexed_types, error_log);
