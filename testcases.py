@@ -401,9 +401,11 @@ class TypeTests(unittest.TestCase):
 
         # Simplest way to test this really is by printing out the error log info,
         # and checking by hand if it makes sense with the test cases code.
+        print("-" * 40, " TESTING UNREACHABLE CODE ", "-" * 40);
         for statement in tc.UNREACHABLE_CODE:
             error_log, global_scope, indexed_types = do_semantic_analysis(statement, 'script', False);
             print_debug_info(statement, {}, error_log);
+        print("\n", "-" * 40, " TESTING UNREACHABLE CODE FINISHED ", "-" * 40);
 
     def test_missing_return(self):
 

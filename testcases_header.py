@@ -256,8 +256,7 @@ INVALID_IF = [
 
 VALID_SIMPLE_FUNCDEF = [
 
-    # Will be using lists in test cases to check multiple functions in one script
-
+    # This one test should encapsulate everything.
     ['func myFunc(var1 : Int, var2 : String) -> Bool {}\nfunc secondFunc() -> Int {}\nfunc voidFunc() {}',
      ['myFunc', 'secondFunc', 'voidFunc'],
      [FunctionType([PrimitiveType.Int, PrimitiveType.String], PrimitiveType.Bool),
