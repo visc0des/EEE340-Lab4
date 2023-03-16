@@ -120,8 +120,7 @@ class InferTypesAndCheckConstraints(NimbleListener):
 
     def sub_var_dec(self, ctx):
 
-        # Extracting variable type declared, its primitive type,
-        # and the ID declared
+        # Extracting variable type declared, its primitive type, and the ID declared
         var_text = ctx.TYPE().getText()
         var_primtype = PrimitiveType[var_text]
         this_ID = ctx.ID().getText()
@@ -147,13 +146,14 @@ class InferTypesAndCheckConstraints(NimbleListener):
             self.current_scope.define(this_ID, var_primtype, True)
 
     def exitReturn(self, ctx: NimbleParser.ReturnContext):
+
         # must match the function definition's type else create an error in the error log
         # in the main only a bare return can be used
 
         expr = ctx.expr()
 
         # checking if type matches function
-        # The type of the main function is PrimitiveType.Void
+        # (The type of the main function is PrimitiveType.Void)
         return_type = self.current_scope.return_type
         if return_type is not PrimitiveType.Void:
             if ctx.expr() is None:
@@ -170,6 +170,7 @@ class InferTypesAndCheckConstraints(NimbleListener):
                                    f"ERROR: Function declaration has return type ({PrimitiveType.Void}).")
 
     def exitFuncCall(self, ctx: NimbleParser.FuncCallContext):
+
         # ensure that the function exists within the global scope otherwise it's an error
         # ensure that argument types match the function's parameter types otherwise it's an error
 
@@ -185,9 +186,8 @@ class InferTypesAndCheckConstraints(NimbleListener):
                                                            f"Check spelling or number of inputted arguments.");
             return;
 
-        # If it exists, check argument types if matching with parameter types
+        # If function exists, check argument types if matching with parameter types
         error_found = False;
-        # used for error message
         error_args = [];
         error_params = [];
         for this_arg, this_param_type in zip(func_args, func_symbol.type.parameter_types):
@@ -214,7 +214,7 @@ class InferTypesAndCheckConstraints(NimbleListener):
         # Checks if the type void
         _type = self.type_of[ctx.funcCall()]
         if _type == PrimitiveType.Void:
-            self.error_log.add(ctx, Category.INVALID_CALL, "A void type function can not act as an expression")
+            self.error_log.add(ctx, Category.INVALID_CALL, "A void type function can not act as an expression.")
             self.type_of[ctx] = PrimitiveType.ERROR
             return
         self.type_of[ctx] = _type
