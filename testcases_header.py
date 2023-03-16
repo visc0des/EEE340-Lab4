@@ -279,6 +279,7 @@ INVALID_TEST_PARAM = [
     ['func thisFunc(thisVar  : Int) { var thisVar : Bool\nthisVar = false }', Category.DUPLICATE_NAME]
 ]
 
+# Encapsulates function call statements as well.
 VALID_FUNCCALL = [
     'func myFunc(var1: Int, var2 : String) {}\nmyFunc(10, "balls")',
     'func myFunc(var1: Int, var2 : Int) {if var1 < var2 {print var1} else {print var2}}\nmyFunc(10,12)',
@@ -286,6 +287,7 @@ VALID_FUNCCALL = [
     'func emptyFunc() {}\nemptyFunc()',
 ]
 
+# Encapsulates function call statements as well.
 INVALID_FUNCCALL = [
     'func myFunc(var1: Int, var2 : Bool) {}\nmyFunc("cat", "and mouse")',
     'func myFunc(var1: Int, var2 : Bool) {}\nNOTmyFunc("cat", "and mouse")',
@@ -485,12 +487,10 @@ NOT_MISSING_RETURN = [
     }  
     """,
 
-    # This one even has unreachable code (.o.)
     """
     func myFunc() -> Int {
         if true {
             return 10
-            print 10
         }
         else {
             return 10
