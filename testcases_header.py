@@ -284,6 +284,9 @@ VALID_FUNCCALL = [
     'func myFunc(var1: Int, var2 : Int) {if var1 < var2 {print var1} else {print var2}}\nmyFunc(10,12)',
     'func myFunc(var1: Int, var2 : String) {}\nmyFunc(10, "balls and books")',
     'func emptyFunc() {}\nemptyFunc()',
+    'func calledFunc() {}\nfunc callingFunc() {calledFunc()}\ncallingFunc()',
+    'func myFunc() {}\nvar myFunc : Int',
+    'func myFunc() {}\nfunc parmFunc(myFunc : String) {}',
 ]
 
 # Encapsulates function call statements as well.

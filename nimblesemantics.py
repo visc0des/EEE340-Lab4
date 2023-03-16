@@ -126,7 +126,7 @@ class InferTypesAndCheckConstraints(NimbleListener):
         this_ID = ctx.ID().getText()
 
         # First thing to check is if we're declaring a duplicated variable name. Set ERROR if so and stop function.
-        if self.current_scope.resolve(this_ID) is not None:
+        if self.current_scope.resolve_locally(this_ID) is not None:
             self.current_scope.define(this_ID, PrimitiveType.ERROR, False)
             self.error_log.add(ctx, Category.DUPLICATE_NAME, f"Previously declared variable already has name"
                                                              f"[{this_ID}]. No duplicates are allowed.")
@@ -298,7 +298,6 @@ class InferTypesAndCheckConstraints(NimbleListener):
                 if not fully_blocked:
                     self.error_log.add(ctx, Category.MISSING_RETURN, f"Not all routes in block node "
                                                                      f"{ctx.getText()} have a return statement.");
-
 
     def check_if_totalblocked(self, this_if_statement):
         """ Checks if passed in this_if_statement is "totally blocked", meaning there
