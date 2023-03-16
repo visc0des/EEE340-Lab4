@@ -292,6 +292,7 @@ INVALID_FUNCCALL = [
     'func myFunc(var1: Int, var2 : Bool) {}\nmyFunc("cat", "and mouse")',
     'func myFunc(var1: Int, var2 : Bool) {}\nNOTmyFunc("cat", "and mouse")',
     'func myFunc(var1: Int, var2 : Bool) {}\nMissingArgFunc("cat")',
+    'func myFunc() {}\nvar myFunc : Int',
 ]
 
 VALID_RETURN = [
