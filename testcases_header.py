@@ -258,7 +258,8 @@ VALID_SIMPLE_FUNCDEF = [
 
     # Will be using lists in test cases to check multiple functions in one script
 
-    ['func myFunc(var1 : Int, var2 : String) -> Bool {}\nfunc secondFunc() -> Int {}\nfunc voidFunc() {}',
+    ['func myFunc(var1 : Int, var2 : String) -> Bool {return true}\nfunc secondFunc() -> Int {return 10}'
+     '\nfunc voidFunc() {}',
      ['myFunc', 'secondFunc', 'voidFunc'],
      [FunctionType([PrimitiveType.Int, PrimitiveType.String], PrimitiveType.Bool),
       FunctionType([], PrimitiveType.Int), FunctionType([], PrimitiveType.Void)]]
@@ -490,7 +491,6 @@ NOT_MISSING_RETURN = [
     func myFunc() -> Int {
         if true {
             return 10
-            print 10
         }
         else {
             return 10

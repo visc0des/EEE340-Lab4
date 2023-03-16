@@ -288,22 +288,23 @@ class TypeTests(unittest.TestCase):
         self.while_if_test(tc.INVALID_IF, True)
 
 
-    # def test_funcDef(self):
-    #     """ Check if function definitions have their correct types. """
-    #
-    #     # Testing valid var dec first
-    #     for statement, func_name_list, expected_type_list in tc.VALID_SIMPLE_FUNCDEF:
-    #
-    #         # Conduct analysis
-    #         error_log, global_scope, indexed_types = do_semantic_analysis(statement, "script", False);
-    #
-    #         # Loop through function names, resolve them and check if have correct expected type.
-    #         # Ensure no errors were generated
-    #         for func_name, expected_type in zip(func_name_list, expected_type_list):
-    #
-    #             func_symbol = global_scope.resolve(func_name);
-    #             self.assertEqual(func_symbol.type, expected_type);
-    #             self.assertEqual(0, error_log.total_entries())
+    def test_funcDef(self):
+        """ Check if function definitions have their correct types. """
+
+        # Testing valid var dec first
+        for statement, func_name_list, expected_type_list in tc.VALID_SIMPLE_FUNCDEF:
+
+            # Conduct analysis
+            error_log, global_scope, indexed_types = do_semantic_analysis(statement, "script", False);
+
+            # Loop through function names, resolve them and check if have correct expected type.
+            # Ensure no errors were generated
+            print_debug_info(statement, indexed_types, error_log)
+            for func_name, expected_type in zip(func_name_list, expected_type_list):
+
+                func_symbol = global_scope.resolve(func_name);
+                self.assertEqual(func_symbol.type, expected_type);
+                self.assertEqual(0, error_log.total_entries())
 
     def test_funcDef_param(self):
 
