@@ -299,7 +299,6 @@ class InferTypesAndCheckConstraints(NimbleListener):
                     self.error_log.add(ctx, Category.MISSING_RETURN, f"Not all routes in block node "
                                                                      f"{ctx.getText()} have a return statement.");
 
-
     def check_if_totalblocked(self, this_if_statement):
         """ Checks if passed in this_if_statement is "totally blocked", meaning there
         is a return statement in all possible routes of the statement.
