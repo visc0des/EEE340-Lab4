@@ -101,7 +101,6 @@ class TypeTests(unittest.TestCase):
 
                 self.assertTrue(error_log.includes_exactly(expected_category, 1, expression))
 
-
     def get_valid_testItems(self, code_line):
         """
         Used as a first test by test_varDec, test_variable, test_print and, test_assignment
@@ -287,7 +286,6 @@ class TypeTests(unittest.TestCase):
         self.while_if_test(tc.VALID_IF, False)
         self.while_if_test(tc.INVALID_IF, True)
 
-
     def test_funcDef(self):
         """ Check if function definitions have their correct types. """
 
@@ -369,21 +367,17 @@ class TypeTests(unittest.TestCase):
         for statement in tc.VALID_RETURN:
             self.get_valid_testItems(statement)
 
-
         # testing invalid statements
         for statement in tc.INVALID_RETURN:
-
-            error_log, global_scope, indexed_types = do_semantic_analysis(statement, 'script')
-
-            self.assertNotEqual(0, error_log.total_entries())
+            self.get_invalid_testItems(statement)
 
     def test_func_call_expr(self):
         # Though this is an expression a special test case must be made as the function declaration must exist first
         # statement is the script to run, type is the type the funcCall should be and expr is the name of the function
         # the funcCallExpr must be on the second line
-        for statement, type, expr in tc.VALID_FUNCCALLEXPR:
+        for statement, _type, expr in tc.VALID_FUNCCALLEXPR:
             error_log, global_scope, indexed_types = self.get_valid_testItems(statement)
-            self.assertEqual(type, indexed_types[2][expr])
+            self.assertEqual(_type, indexed_types[2][expr])
 
         for statement, expected_error in tc.INVALID_FUNCCALLEXPR:
             error_log, global_scope, indexed_types = self.get_invalid_testItems(statement)
